@@ -1,4 +1,4 @@
-module PC_source_mux(
+module ALU_source_mux(
     input [31:0] read_data_2,
     input [31:0] imm,
     input ALUSrc,
