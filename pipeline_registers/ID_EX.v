@@ -35,7 +35,7 @@ module ID_EX(
 
     output reg [31:0] out_imm,
     output reg [3:0] out_funct_inst_bits,
-    output reg [4:0] out_rd.
+  	output reg [4:0] out_rd,
 
     //control signals to be outputted
     
@@ -50,12 +50,12 @@ module ID_EX(
 
     //EX stage controls
     output reg [1:0] EX_ALU_Op_out,
-    output reg EX_ALU_Src_out,
+    output reg EX_ALU_Src_out
 );
 
 
     always @ (posedge clock)
-    if(reset){
+    if(reset)
         begin
             out_ifid_pc_address <= 32'b0;
             out_reg_read_data1 <= 32'b0;
@@ -71,14 +71,13 @@ module ID_EX(
 
             M_branch_out <= 1'b0;
             M_mem_read_out <= 1'b0;
-            M_mem_write_out <= 1'b0
+            M_mem_write_out <= 1'b0;
 
             EX_ALU_Op_out <= 2'b0;
             EX_ALU_Src_out <= 1'b0;
         end
-    }
 
-    else {
+    else 
         begin        
             out_ifid_pc_address <= ifid_pc_address;
             out_reg_read_data1 <= reg_read_data1;
@@ -100,7 +99,6 @@ module ID_EX(
             EX_ALU_Op_out <= EX_ALU_Op;
             EX_ALU_Src_out <= EX_ALU_Src;
         end
-    }
 
 
 endmodule
