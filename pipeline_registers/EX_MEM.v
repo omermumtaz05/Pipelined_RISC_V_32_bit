@@ -48,11 +48,11 @@ module EX_MEM(
 
 
     always @ (posedge clock)
-    if(reset){
+    if(reset)
         begin
             branch_adder_sum_out <= 32'b0;
             ALU_result_out <= 32'b0;
-            reg_read_data2_out <= 32'b0
+            reg_read_data2_out <= 32'b0;
             rd_out <= 5'b0;
    
             WB_reg_write_out <= 1'b0;
@@ -64,16 +64,16 @@ module EX_MEM(
 
             ALU_zero_out <= 1'b0;
         end
-    }
+    
 
-    else {
+     else 
         begin        
             branch_adder_sum_out <= branch_adder_sum_in;
             ALU_result_out <= ALU_result_in;
             reg_read_data2_out <= reg_read_data2_in;
             rd_out <= rd;
               
-            WB_reg_write_out <= WB_reg_write_in
+            WB_reg_write_out <= WB_reg_write_in;
             WB_mem_to_reg_out <= WB_mem_to_reg_in;
 
             M_branch_out <= M_branch_in;
@@ -82,11 +82,9 @@ module EX_MEM(
 
             ALU_zero_out <= ALU_zero_in;
         end
-    }
 
 
 endmodule
 
 
 //Verify!!!
-
