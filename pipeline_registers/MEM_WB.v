@@ -19,11 +19,11 @@ module MEM_WB(
 
     //control signal inputs
     output reg WB_reg_write_out,
-    output reg WB_mem_to_reg_out,
+    output reg WB_mem_to_reg_out
 );
 
     always @ (posedge clock)
-    if(reset){
+    if(reset)
         begin
             read_data_out <= 32'b0;
             ALU_result_out <= 32'b0;
@@ -32,8 +32,8 @@ module MEM_WB(
             WB_reg_write_out <= 1'b0;
             WB_mem_to_reg_out <= 1'b0;
         end
-    }
-    else {
+    
+    else 
         begin
             read_data_out <= read_data_in;
             ALU_result_out <= ALU_result_in;
@@ -42,6 +42,6 @@ module MEM_WB(
             WB_reg_write_out <= WB_reg_write_in;
             WB_mem_to_reg_out <= WB_mem_to_reg_in;
         end
-    }
+    
 
 endmodule
