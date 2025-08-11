@@ -1,9 +1,9 @@
+// Code your design here
 module ALUControl(
     
 input funct7_bit_6,
 input [2:0] funct3,
 input [1:0] ALUOp,
-input reset, 
 
 output reg [3:0] control
 
@@ -11,10 +11,7 @@ output reg [3:0] control
   
     always @ (*)
         begin
-            if(reset)
-                control = 0;
-
-            else if(ALUOp == 2'b00)
+            if(ALUOp == 2'b00)
                 control = 4'b0010;
             else if(ALUOp == 2'b01)
                 control = 4'b0110;
