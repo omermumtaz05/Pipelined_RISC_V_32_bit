@@ -1,3 +1,4 @@
+// Code your design here
 module control(
     input [31:0] instruc,
 
@@ -18,68 +19,68 @@ parameter LW = 7'b0000011,
           BEQ = 7'b1100011,
 	      ADDI = 7'b0010011;
 
+  
     always @ (*)
     begin
-
-        if(instruc[6:0] == R_type){
+        if(instruc[6:0] == R_type)
         begin
             ALUOp = 2'b10;
             ALUSrc = 1'b0;
             branch = 1'b0;
-            mem_read 1'b0;
+            mem_read = 1'b0;
             mem_write = 1'b0;
             reg_write = 1'b1;
             mem_to_reg = 1'b0;
         end
-        }
+        
 
-        else if(instruc[6:0] == LW){
+        else if(instruc[6:0] == LW)
         begin
             ALUOp = 2'b00;
             ALUSrc = 1'b1;
             branch = 1'b0;
-            mem_read 1'b1;
+            mem_read = 1'b1;
             mem_write = 1'b0;
             reg_write = 1'b1;
             mem_to_reg = 1'b1;
         end
-        }
+        
 
-        else if(instruc[6:0] == SW){
+        else if(instruc[6:0] == SW)
         begin
             ALUOp = 2'b00;
             ALUSrc = 1'b1;
             branch = 1'b0;
-            mem_read 1'b0;
+            mem_read = 1'b0;
             mem_write = 1'b1;
             reg_write = 1'b0;
             mem_to_reg = 1'bx;
         end
-        }
+        
 
-        else if(instruc[6:0] == BEQ){
+        else if(instruc[6:0] == BEQ)
         begin
             ALUOp = 2'b01;
             ALUSrc = 1'b0;
             branch = 1'b1;
-            mem_read 1'b0;
+            mem_read = 1'b0;
             mem_write = 1'b0;
             reg_write = 1'b0;
             mem_to_reg = 1'bx;
         end
-        }
+        
 
-        else if(instruc[6:0] == ADDI){
+        else if(instruc[6:0] == ADDI)
         begin
             ALUOp = 2'b00;
             ALUSrc = 1'b1;
             branch = 1'b0;
-            mem_read 1'b0;
+            mem_read = 1'b0;
             mem_write = 1'b0;
             reg_write = 1'b1;
             mem_to_reg = 1'b0;
         end
-        }
+   
 
     end
 
