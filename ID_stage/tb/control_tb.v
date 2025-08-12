@@ -1,7 +1,7 @@
 // Code your testbench here
 // or browse Examples
 
-module ALUControl_tb();
+module control_tb();
 
   
   reg [31:0] instruction;
