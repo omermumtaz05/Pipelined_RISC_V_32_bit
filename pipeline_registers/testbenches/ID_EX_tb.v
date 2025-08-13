@@ -1,102 +1,37 @@
 // Code your testbench here
 // or browse Examples
+
+import cpu_pkg::*;
+
 module tb();
   
-    reg clock;
-    reg reset;
+    logic clock;
+    logic reset;
     
-    // data to be stored
-  	reg [31:0] ifid_pc_address;
-    reg [31:0] reg_read_data1;
-    reg [31:0] reg_read_data2;
+    pipeline_data_t_id_ex data_in;
 
-    reg [31:0] imm;
-    reg [3:0] funct_inst_bits;
-    reg [4:0] rd;
+    pipeline_control_t_id_ex control_in;
 
-    //control signals for upcoming stages to be storeed
+    pipeline_data_t_id_ex data_out;
 
-    //WB stage control
-    reg WB_reg_write;
-    reg WB_mem_to_reg;
+    pipeline_control_t_id_ex control_out;
 
-    //Mem stage contorl signals
-    reg M_branch;
-    reg M_mem_read;
-    reg M_mem_write;
-
-    // EX stage control signals
-  reg [1:0] EX_ALU_Op;
-    reg EX_ALU_Src;
-
-
-    //data being outputted
-  wire [31:0] out_ifid_pc_address;
-  wire [31:0] out_reg_read_data1;
-  wire [31:0] out_reg_read_data2;
-
-  wire [31:0] out_imm;
-  wire [3:0] out_funct_inst_bits;
-  wire [4:0] out_rd;
-
-    //control signals to be outputted
-    
-    //WB stage control output
-    wire WB_reg_write_out;
-    wire WB_mem_to_reg_out;
-
-    //MEM stage controls
-    wire M_branch_out;
-    wire M_mem_read_out;
-    wire M_mem_write_out;
-
-    //EX stage controls
-  wire [1:0] EX_ALU_Op_out;
-    wire EX_ALU_Src_out;
   
   
   ID_EX uut(
+    //standard for all sequential
     .clock(clock),
     .reset(reset),
     
-    .ifid_pc_address(ifid_pc_address),
-    .reg_read_data1(reg_read_data1),
-    .reg_read_data2(reg_read_data2),
-    .imm(imm),
-    .funct_inst_bits(funct_inst_bits),
-    .rd(rd),
+    .data_in(data_in),
+
+    .control_in(control_in),
+
+    .data_out(data_out),
     
-    .WB_reg_write(WB_reg_write),
-    .WB_mem_to_reg(WB_mem_to_reg),
-    
-    .M_branch(M_branch),
-    .M_mem_read(M_mem_read),
-    .M_mem_write(M_mem_write),
-    
-    .EX_ALU_Op(EX_ALU_Op),
-    .EX_ALU_Src(EX_ALU_Src),
-    
-    
-    .out_ifid_pc_address(out_ifid_pc_address),
-    .out_reg_read_data1(out_reg_read_data1),
-    .out_reg_read_data2(out_reg_read_data2),
-    .out_imm(out_imm),
-    .out_funct_inst_bits(out_funct_inst_bits),
-    .out_rd(out_rd),
-    
-    .WB_reg_write_out(WB_reg_write_out),
-    .WB_mem_to_reg_out(WB_mem_to_reg_out),
-    
-    .M_branch_out(M_branch_out),
-    .M_mem_read_out(M_mem_read_out),
-    .M_mem_write_out(M_mem_write_out),
-    
-    .EX_ALU_Op_out(EX_ALU_Op_out),
-    .EX_ALU_Src_out(EX_ALU_Src_out)
-    
-    
-    
-  );
+    .control_out(control_out)
+);
+
   
   
    initial clock = 0;
@@ -106,42 +41,47 @@ module tb();
   initial begin
     
     // Initialize inputs
-    clock = 0; reset = 1; 
+    clock = 0; reset = 1; data_in = '0; control_in = '0;
     
     #10 reset = 0;
     
-    #10 WB_reg_write = 1;
-   		 WB_mem_to_reg = 1;
+    #10 control_in.WB_reg_write = 1;
+   		  control_in.WB_mem_to_reg = 1;
 
-     	M_branch = 1;
-     	M_mem_read = 1;
-    	 M_mem_write = 1;
+     	  control_in.M_branch = 1;
+     	  control_in.M_mem_read = 1;
+    	  control_in.M_mem_write = 1;
     
-    	 EX_ALU_Op = 2'b10;
-    	 EX_ALU_Src = 1;
+    	  control_in.EX_ALU_Op = 2'b10;
+    	  control_in.EX_ALU_Src = 1;
   
-  	#10 $display("reg write = %d, mem to reg = %d, branch = %d, mem read = %d, mem write = %d, alu op = %d, alu src = %d", WB_reg_write_out, WB_mem_to_reg_out, M_branch_out, M_mem_read_out, M_mem_write_out, EX_ALU_Op_out, EX_ALU_Src_out);
-    
-    
-    #10 ifid_pc_address = 32'd1234;
-    	reg_read_data1 = 32'd1234;
-    	reg_read_data2 = 32'd4321;
+  
+ 	data_in.pc_address = 32'd1234;
+    	data_in.reg_read_data1 = 32'd12345;
+    	data_in.reg_read_data2 = 32'd4321;
 
-      	imm = 32'd1234;
-        funct_inst_bits = 4'd15;
-        rd = 5'd31;
+      	data_in.imm = 32'd123456;
+        data_in.funct_inst_bits = 4'd15;
+        data_in.rd = 5'd31;
+
+	#10 $display("reg write = %b, mem to reg = %b, branch = %b, mem read = %b, mem write = %b, alu op = %b, alu src = %b", 
+    control_out.WB_reg_write, control_out.WB_mem_to_reg, control_out.M_branch, control_out.M_mem_read, control_out.M_mem_write, 
+    control_out.EX_ALU_Op, control_out.EX_ALU_Src);
     
     
-    #10 $display("pc address = %d, read data 1 = %d, read data 2 = %d, immediate = %d, funct bits = %d, rd = %d", out_ifid_pc_address, out_reg_read_data1, out_reg_read_data2, out_imm, out_funct_inst_bits, out_rd);
+    #10 $display("pc address = %d, read data 1 = %d, read data 2 = %d, immediate = %d, funct bits = %d, rd = %d", 
+        data_out.pc_address, data_out.reg_read_data1, data_out.reg_read_data2, data_out.imm, data_out.funct_inst_bits, data_out.rd);
     
       #10 reset = 1;
    
-    #10 $display("reg write = %d, mem to reg = %d, branch = %d, mem read = %d, mem write = %d, alu op = %d, alu src = %d", WB_reg_write_out, WB_mem_to_reg_out, M_branch_out, M_mem_read_out, M_mem_write_out, EX_ALU_Op_out, EX_ALU_Src_out);
+    #10 $display("reg write = %b, mem to reg = %b, branch = %b, mem read = %b, mem write = %b, alu op = %b, alu src = %b", 
+    control_out.WB_reg_write, control_out.WB_mem_to_reg, control_out.M_branch, control_out.M_mem_read, control_out.M_mem_write, 
+    control_out.EX_ALU_Op, control_out.EX_ALU_Src);
     
+     #10 $display("pc address = %d, read data 1 = %d, read data 2 = %d, immediate = %d, funct bits = %d, rd = %d", 
+      data_out.pc_address, data_out.reg_read_data1, data_out.reg_read_data2, data_out.imm, data_out.funct_inst_bits, data_out.rd);
     
-     #10 $display("pc address = %d, read data 1 = %d, read data 2 = %d, immediate = %d, funct bits = %d, rd = %d", out_ifid_pc_address, out_reg_read_data1, out_reg_read_data2, out_imm, out_funct_inst_bits, out_rd);
-    
-    #10 $finish;
+    #10 $stop;
     
     
    
