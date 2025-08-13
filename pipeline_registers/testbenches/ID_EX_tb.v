@@ -8,13 +8,13 @@ module tb();
     logic clock;
     logic reset;
     
-    pipeline_data_t_id_ex data_in;
+    id_ex_data_t data_in;
 
-    pipeline_control_t_id_ex control_in;
+    id_ex_control_t control_in;
 
-    pipeline_data_t_id_ex data_out;
+    id_ex_data_t data_out;
 
-    pipeline_control_t_id_ex control_out;
+    id_ex_control_t control_out;
 
   
   
@@ -37,7 +37,7 @@ module tb();
    initial clock = 0;
   always #5 clock = ~clock;  // Toggle every 5 ns → 10 ns period = 100 MHz
 
-  // Test sequence
+   // Test sequence
   initial begin
     
     // Initialize inputs
@@ -86,7 +86,6 @@ module tb();
     
    
   end
-  
   
   
   
