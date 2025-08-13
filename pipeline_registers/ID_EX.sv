@@ -6,13 +6,13 @@ module ID_EX(
     input logic clock,
     input logic reset,
     
-    input pipeline_data_t data_in,
+    input pipeline_data_t_id_ex data_in,
 
-    input pipeline_control_t control_in,
+    input pipeline_control_t_id_ex control_in,
 
-    output pipeline_data_t data_out,
+    output pipeline_data_t_id_ex data_out,
     
-    output pipeline_control_t control_out
+    output pipeline_control_t_id_ex control_out
 );
 
 
