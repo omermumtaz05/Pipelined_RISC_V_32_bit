@@ -1,29 +1,24 @@
-// Code your design here
-// Code your design here
+import cpu_pkg::*;
 
 module IF_ID(
     input logic clock,
     input logic reset,
     
-    input logic [31:0] input_pc_address,
-    input logic [31:0] input_instruc,
+    input if_id_data_t data_in,
 
-    output logic [31:0] out_pc_address,
-    output logic [31:0] output_instruc
+    output if_id_data_t data_out
 );
 
     always_ff @ (posedge clock)
       if(reset)
             begin
-                out_pc_address <= '0;
-                output_instruc <= '0;
+                data_out <= '0;
             end
       
         
         else
             begin
-                out_pc_address <= input_pc_address;
-                output_instruc <= input_instruc;
+                data_out <= data_in;
 
             end
         
