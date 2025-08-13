@@ -63,4 +63,20 @@ typedef struct packed {
 
 } ex_mem_data_t;
 
+//mem wb control and data
+typedef struct packed {
+    
+    reg WB_reg_write;
+    reg WB_mem_to_reg;
+
+} mem_wb_control_t;
+
+typedef struct packed {
+    
+    reg [31:0] read_data;
+    reg [31:0] ALU_result;
+    reg [4:0] rd;
+
+} mem_wb_data_t;
+
 endpackage
