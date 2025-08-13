@@ -1,11 +1,15 @@
+
 package cpu_pkg;
 
+//if id data
 typedef struct packed {
     // Data to be stored
     reg [31:0] pc_address;
     reg [31:0] instruc;
     
 } if_id_data_t;
+
+// id ex control and data
 
 typedef struct packed {
     // WB stage control
@@ -35,5 +39,28 @@ typedef struct packed {
 
 } id_ex_data_t;
 
+//ex mem control and data
+typedef struct packed {
+    
+    reg WB_reg_write;
+    reg WB_mem_to_reg;
+
+    
+    reg M_branch;
+    reg M_mem_read;
+    reg M_mem_write;
+
+    reg ALU_zero;
+
+} ex_mem_control_t;
+
+typedef struct packed {
+    
+    reg [31:0] branch_adder_sum;
+    reg [31:0] ALU_result;
+    reg [31:0] reg_read_data2;
+    reg [4:0] rd;
+
+} ex_mem_data_t;
 
 endpackage
