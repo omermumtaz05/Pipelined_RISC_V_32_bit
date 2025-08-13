@@ -1,24 +1,19 @@
-// Code your testbench here
-// or browse Examples
+
+import cpu_pkg::*;
+
 module tb();
   
-  reg clock;
-  reg reset;
-  reg [31:0] input_pc_address;
-  reg [31:0] input_instruc;
+  logic clock;
+  logic reset;
   
-  
-  wire [31:0] output_pc_address;
-  wire [31:0] output_instruc;
-  
+  if_id_data_t data_in;
+  if_id_data_t data_out;
   
   IF_ID uut(
     .clock(clock),
     .reset(reset),
-    .input_pc_address(input_pc_address),
-    .input_instruc(input_instruc),
-    .out_pc_address(output_pc_address),
-    .output_instruc(output_instruc)
+    .data_in(data_in),
+    .data_out(data_out)
   );
   
   
@@ -29,22 +24,24 @@ module tb();
   initial begin
     
     // Initialize inputs
-    input_pc_address = 32'b0; input_instruc = 32'b0; clock = 0; reset = 1; 
+    #10 clock = 0; reset = 1; data_in = '0; 
+    
+	#10;
     
     #10 reset = 0;
     
-    #10 input_pc_address = 32'b010111; input_instruc = 32'b010101;
+    #10 data_in.pc_address = 32'd42010; data_in.instruc = 32'd43210;
     
     
-    #10 $display("pc address =%d, instruction = %d", output_pc_address, output_instruc);
+    #10 $display("pc address =%d, instruction = %d", data_out.pc_address, data_out.instruc);
     
     
     #10 reset = 1;
     
     
-    #10 $display("pc address =%d, instruction = %d", output_pc_address, output_instruc);
+    #10 $display("pc address =%d, instruction = %d", data_out.pc_address, data_out.instruc);
     
-    #10 $finish;
+    #10 $stop;
     
     
    
