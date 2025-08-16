@@ -1,10 +1,10 @@
 module imm_gen(
-    input [31:0] inst,
-  	output reg [31:0] imm
+    input logic [31:0] inst,
+  	output logic [31:0] imm
 );
 
 
-    always @ (*)
+    always_comb @ (*)
         case(inst[6:0])
 
             7'b0000011,
@@ -22,7 +22,7 @@ module imm_gen(
 
             default:
             
-                imm = 32'b0;
+                imm = '0;
 
         endcase
 
