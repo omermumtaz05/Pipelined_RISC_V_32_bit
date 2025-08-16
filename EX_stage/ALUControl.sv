@@ -1,15 +1,15 @@
-// Code your design here
+
 module ALUControl(
     
-input funct7_bit_6,
-input [2:0] funct3,
-input [1:0] ALUOp,
+input logic funct7_bit_6,
+input logic [2:0] funct3,
+input logic [1:0] ALUOp,
 
-output reg [3:0] control
+output logic [3:0] control
 
 );
   
-    always @ (*)
+    always_comb
         begin
             if(ALUOp == 2'b00)
                 control = 4'b0010;
