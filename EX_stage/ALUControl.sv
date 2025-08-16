@@ -1,4 +1,3 @@
-
 module ALUControl(
     
 input logic funct7_bit_6,
