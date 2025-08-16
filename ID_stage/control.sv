@@ -1,4 +1,3 @@
-// Code your design here
 module control(
     input logic [31:0] instruc,
 
@@ -20,7 +19,7 @@ parameter LW = 7'b0000011,
 	      ADDI = 7'b0010011;
 
   
-    always_comb @ (*)
+    always_comb
     begin
         if(instruc[6:0] == R_type)
         begin
