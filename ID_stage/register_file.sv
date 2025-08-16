@@ -1,5 +1,5 @@
 module register(
-    input clock,
+    input clk,
   	input reset,
 
     input logic [4:0] readReg1,
@@ -27,7 +27,7 @@ module register(
        else if(regWrite & writeReg != 0)
             RF[writeReg] <= writeData;
 
-    always_comb @ (*)
+    always_comb
         begin
             readData1 = RF[readReg1];
             readData2 = RF[readReg2];
