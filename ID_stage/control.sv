@@ -1,14 +1,14 @@
 // Code your design here
 module control(
-    input [31:0] instruc,
+    input logic [31:0] instruc,
 
-    output reg [1:0] ALUOp,
-    output reg ALUSrc,
-    output reg branch,
-    output reg mem_read,
-    output reg mem_write,
-    output reg reg_write,
-    output reg mem_to_reg
+    output logic [1:0] ALUOp,
+    output logic ALUSrc,
+    output logic branch,
+    output logic mem_read,
+    output logic mem_write,
+    output logic reg_write,
+    output logic mem_to_reg
 
 
 );
@@ -20,7 +20,7 @@ parameter LW = 7'b0000011,
 	      ADDI = 7'b0010011;
 
   
-    always @ (*)
+    always_comb @ (*)
     begin
         if(instruc[6:0] == R_type)
         begin
