@@ -6,7 +6,7 @@ module ALU(
     output logic [31:0] result
 );
 
-    always_comb @ (*)
+    always_comb
         begin
             case(control)
                 4'b0000: result = A & B;
@@ -23,5 +23,3 @@ module ALU(
 
 
 endmodule
-
-
