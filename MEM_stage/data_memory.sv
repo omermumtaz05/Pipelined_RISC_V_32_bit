@@ -32,7 +32,7 @@ module data_memory(
        end
     end
 
-    always @ (*)
+    always_comb
         if(memRead)
             memData = {data[address + 3], data[address + 2], data[address + 1], data[address]};
         else
