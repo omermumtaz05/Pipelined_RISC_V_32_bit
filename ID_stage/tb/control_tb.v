@@ -1,19 +1,16 @@
-// Code your testbench here
-// or browse Examples
-
 module control_tb();
 
   
-  reg [31:0] instruction;
+  logic [31:0] instruction;
 
   
-  wire [1:0] ALUOp;
-  wire ALUSrc;
-  wire branch;
-  wire mem_read;
-  wire mem_write;
-  wire reg_write;
-  wire mem_to_reg;
+  logic [1:0] ALUOp;
+  logic ALUSrc;
+  logic branch;
+  logic mem_read;
+  logic mem_write;
+  logic reg_write;
+  logic mem_to_reg;
   
   
   
