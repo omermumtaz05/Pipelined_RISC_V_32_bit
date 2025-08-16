@@ -1,9 +1,7 @@
-// Code your design here
-//typedef logic [7:0] mem_byte_t [127:0];
-
 module instruction_memory(
+ 	input logic clock,
+  
     input logic [31:0]address,
-    input logic clock,
     output logic [31:0] read_instr
 );
 
