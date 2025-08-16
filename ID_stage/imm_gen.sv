@@ -4,7 +4,7 @@ module imm_gen(
 );
 
 
-    always_comb @ (*)
+    always_comb
         case(inst[6:0])
 
             7'b0000011,
