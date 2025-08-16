@@ -1,11 +1,13 @@
 // Code your design here
+//typedef logic [7:0] mem_byte_t [127:0];
+
 module instruction_memory(
-    input [31:0]address,
-    input clk,
-    output reg [31:0] read_instr
+    input logic [31:0]address,
+    input logic clock,
+    output logic [31:0] read_instr
 );
 
-    reg [7:0] instr [127:0];
+    logic [7:0] instr [127:0];
 
    	initial begin
 	// addi x3, x0, 20
@@ -71,9 +73,9 @@ module instruction_memory(
 	    
     end
   
-    always @ (posedge clk)
+    always_ff @ (posedge clock)
        begin
-            read_instr <= {instr[address + 3], instr[address + 2], 		instr[address + 1], instr[address]};
+            read_instr <= {instr[address + 3], instr[address + 2], 	instr[address + 1], instr[address]};
        end
         
        
