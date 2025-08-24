@@ -6,7 +6,7 @@ module top(
     );
 
     // pc and if/id control
-    logic PCWrite, if_id_writem;
+    logic PCWrite, if_id_write;
 
     // mux control signals
     logic PCSrc;
@@ -30,8 +30,8 @@ module top(
     instruction_memory IM(.clock(clock), .address(PC_out), .read_instr(ifid_data_in.instruc));
 
 
-    IF_ID if_id(.clock(clock), .reset(reset),
-                if_id_data_t ifid_data_in,  if_id_data_t ifid_data_out);
+    IF_ID if_id(.clock(clock), .reset(reset), .if_id_write(if_id_write),
+                .data_in(ifid_data_in), .data_out(ifid_data_out));
 
 
 endmodule
