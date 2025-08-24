@@ -15,8 +15,8 @@ always_comb
 begin
 
     if(id_ex_mem_read &&
-    id_ex_rd == if_id_rs1 &&
-    id_ex_rd ==  if_id_rs2)
+      ((id_ex_rd == if_id_rs1) || 
+       (id_ex_rd ==  if_id_rs2)))
 
         begin
 
@@ -37,6 +37,9 @@ begin
         end
 
 
+
 end
+
+
 
 endmodule
