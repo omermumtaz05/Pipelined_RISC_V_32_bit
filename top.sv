@@ -25,7 +25,17 @@ module top(
 
     mem_wb_data_t memwb_data_in, memwb_data_out;
 
+    ex_mem_data_t exmem_data_in, exmem_data_out;
 
+    // fwd sels
+    logic [1:0] fwd_a_sel, fwd_b_sel;
+
+    //alu inps
+    logic [31:0] ALU_inp_1, ALU_inp_2;
+
+    //alu ctrl and zero
+    logic [3:0] ALU_control;
+    logic zero;
 
     logic [31:0] inc_addrs, branch_addrs, PC_in;
     logic [31:0] memtoreg_mux_out;
@@ -84,9 +94,49 @@ module top(
 
     //EX stage
 
+
+    forward_a_mux fwd_a_mux(
+    .read_data_1(idex_data_out.reg_read_data1),
+    .ex_mem_out(exmem_data_out.ALU_result),
+    .mem_wb_out(memtoreg_mux_out),
+
+    .forward_a(fwd_a_sel),
+
+    .alu_inp_1(ALU_inp_1)
+    );
+
+    forward_b_mux fwd_b_mux(
+    .read_data_2(idex_data_out.reg_read_data2),
+    .ex_mem_out(exmem_data_out.ALU_result),
+    .mem_wb_out(memtoreg_mux_out),
+
+    .forward_b(fwd_b_sel),
+
+    .alu_inp_2(ALU_inp_2)
+    );
+
+
+  /*  ALU alu(
+    .A(ALU_inp_1),
+    .B(ALU_inp_2),
+    .control(ALU_control),
+    .zero(zero), 
+    .result(exmem_data_in.ALU_result)
+    );
+
+    forwarding_unit fwd_unit(
+    .id_ex_rs1(idex_data_out.),
+    input logic [4:0] id_ex_rs2,
+    input logic [4:0] ex_mem_rd,
+    input logic [4:0] mem_wb_rd,
+
+    input logic ex_mem_reg_write,
+    input logic mem_wb_reg_write,
+
     
-
-
+    output logic [1:0] forward_a,
+    output logic [1:0] forward_b
+);*/
 
 
 
