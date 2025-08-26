@@ -33,7 +33,7 @@ module top(
 
     //memwb
     mem_wb_data_t memwb_data_in, memwb_data_out;
-    mem_wb_control_t memwb_ctrl_in, memwb_ctrl_out;
+    mem_wb_control_t memwb_control_in, memwb_control_out;
 
     // fwd sels
     logic [1:0] fwd_a_sel, fwd_b_sel;
@@ -72,7 +72,7 @@ module top(
     register RF(.clk(clock), .reset(reset),
                 .readReg1(ifid_data_out.instruc[19:15]), .readReg2(ifid_data_out.instruc[24:20]),
                 .writeReg(memwb_data_out.rd), .writeData(memtoreg_mux_out),
-                .regWrite(memwb_ctrl_out.WB_reg_write) .readData1(idex_data_in.reg_read_data1), .readData2(idex_data_in.reg_read_data2));
+                .regWrite(memwb_ctrl_out.WB_reg_write), .readData1(idex_data_in.reg_read_data1), .readData2(idex_data_in.reg_read_data2));
 
 
  
@@ -82,7 +82,7 @@ module top(
 
     assign idex_data_in.pc_address = ifid_data_out.pc_address;
 
-    assign idex_data_in.funct_inst_bits = {ifid_data_out.instruc[30], ifid_data_out.instruc[14:12]}
+    assign idex_data_in.funct_inst_bits = {ifid_data_out.instruc[30], ifid_data_out.instruc[14:12]};
     assign idex_data_in.rd = ifid_data_out.instruc[11:7];
 
 
@@ -169,8 +169,8 @@ module top(
     assign memwb_data_in.ALU_result = exmem_data_out.ALU_result;
     assign memwb_data_in.rd = exmem_data_out.rd;
 
-    assign memwb_control_in.WB_reg_write = exmem_data_out.WB_reg_write;
-    assign memwb_control_in.WB_mem_to_reg = exmem_data_out.WB_mem_to_reg;
+    assign memwb_control_in.WB_reg_write = exmem_control_out.WB_reg_write;
+    assign memwb_control_in.WB_mem_to_reg = exmem_control_out.WB_mem_to_reg;
 
     MEM_WB memwb_reg(
     .clock(clock),
