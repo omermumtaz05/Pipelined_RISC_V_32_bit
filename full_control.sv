@@ -116,4 +116,3 @@ output logic [3:0] control
         end
 
 endmodule
-
