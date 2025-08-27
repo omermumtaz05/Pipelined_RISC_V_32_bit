@@ -220,7 +220,7 @@ module data_memory(
     always_ff @ (posedge clk)
    begin
     if(reset)
-	data[20] = 8'h6D;
+	data[20] = 32'h0000006D;
     
     else if(memWrite)
        begin
