@@ -36,6 +36,7 @@ module top_module(
 
     //alu inps
     logic [31:0] ALU_inp_1, ALU_inp_2;
+    logic [31:0] fwd_b_out;
 
     //alu ctrl and zero
     logic [3:0] ALU_control;
@@ -111,7 +112,7 @@ module top_module(
 
 
     ALU_source_mux alu_src_mux(
-    .read_data_2(idex_data_out.reg_read_data2),
+    .read_data_2(fwd_b_out),
     .imm(idex_data_out.imm),
     .ALUSrc(idex_control_out.EX_ALU_Src),
 
@@ -148,7 +149,14 @@ module top_module(
     .alu_inp_1(ALU_inp_1)
     );
 
+    forward_b_mux fwd_b_mux(
+    .read_data_2(idex_data_out.reg_read_data2),
+    .ex_mem_out(exmem_data_out.ALU_result),
+    .mem_wb_out(memtoreg_mux_out),
+    .forward_b(fwd_b_sel),
 
+    .alu_inp_2(fwd_b_out)
+);
 
     assign exmem_data_in.reg_read_data2 = idex_data_out.reg_read_data2;
     assign exmem_data_in.rd = idex_data_out.rd;
