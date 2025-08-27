@@ -22,7 +22,6 @@ begin
 
         else if((mem_wb_rd != 0) && mem_wb_reg_write 
         && (mem_wb_rd == id_ex_rs1)
-                
         && !(ex_mem_reg_write && (ex_mem_rd != 0) // make sure prev instruction in ex/mem stage doesnt write to/read from same address
         && ex_mem_rd == id_ex_rs1))
 
