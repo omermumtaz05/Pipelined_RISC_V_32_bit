@@ -16,7 +16,7 @@ module ProgramCounter(
       pc_out <= '0;
     else if(PCWrite)
 	begin
-      pc_out <= next_pc & 32'h0000007F;
+      pc_out <= next_pc; // & 32'h0000007F;
      
   end
       
@@ -79,7 +79,7 @@ module instruction_memory(
 	// addi x5, x3, 3 - memwb hazard
 	instr[12] = 8'h93;
 	instr[13] = 8'h82;
-	instr[14] = 8'h31;
+	instr[14] = 8'hf1;
 	instr[15] = 8'h00;
 	   
     end
