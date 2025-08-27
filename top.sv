@@ -1,6 +1,6 @@
 import cpu_pkg::*;
 
-module top(
+module top_module(
     input logic clock, 
     input logic reset
     );
@@ -45,7 +45,7 @@ module top(
     logic [3:0] ALU_control;
     logic zero;
 
-    logic [31:0] inc_addrs, branch_addrs, PC_in;
+    logic [31:0] inc_addrs, branch_addrs, PC_in, PC_out;
     logic [31:0] memtoreg_mux_out;
     logic [31:0] imm;
     
@@ -55,9 +55,9 @@ module top(
                             .PCSrc(PCSrc), .PC_input(PC_in));
 
 
-    ProgramCounter PC (.clk(clock), .reset(reset),
+    ProgramCounter pc_reg(.clk(clock), .reset(reset),
                         .PCWrite(PCWrite), .next_pc(PC_in),
-                        .pc(ifid_data_in.pc_address));
+                        .pc_out(ifid_data_in.pc_address));
 
     pc_inc_adder pc_inc(.PC_out(PC_out), .inc_pc(inc_addrs));
 
@@ -72,7 +72,7 @@ module top(
     register RF(.clk(clock), .reset(reset),
                 .readReg1(ifid_data_out.instruc[19:15]), .readReg2(ifid_data_out.instruc[24:20]),
                 .writeReg(memwb_data_out.rd), .writeData(memtoreg_mux_out),
-                .regWrite(memwb_ctrl_out.WB_reg_write), .readData1(idex_data_in.reg_read_data1), .readData2(idex_data_in.reg_read_data2));
+                .regWrite(memwb_control_out.WB_reg_write), .readData1(idex_data_in.reg_read_data1), .readData2(idex_data_in.reg_read_data2));
 
 
  
@@ -156,7 +156,6 @@ module top(
     data_memory DM(
     .clk(clock),
     .reset(reset),
-    
     .address(exmem_data_out.ALU_result),
     .writeData(exmem_data_out.reg_read_data2),
     .memRead(exmem_control_out.M_mem_read),
