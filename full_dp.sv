@@ -69,6 +69,18 @@ module instruction_memory(
 	instr[5] = 8'h01;
 	instr[6] = 8'h10;
 	instr[7] = 8'h01;
+
+	// addi x4, x3, 3 - exmem hazard
+	instr[8] = 8'h13;
+	instr[9] = 8'h82;
+	instr[10] = 8'h31;
+	instr[11] = 8'h00;
+
+	// addi x5, x3, 3 - memwb hazard
+	instr[12] = 8'h93;
+	instr[13] = 8'h82;
+	instr[14] = 8'h31;
+	instr[15] = 8'h00;
 	   
     end
   
