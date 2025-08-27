@@ -37,6 +37,9 @@ typedef struct packed {
     reg [3:0] funct_inst_bits;
     reg [4:0] rd;
 
+    reg [31:0] rs1;
+    reg [31:0] rs2;
+
 } id_ex_data_t;
 
 //ex mem control and data
@@ -79,4 +82,7 @@ typedef struct packed {
 
 } mem_wb_data_t;
 
+
 endpackage
+
+
