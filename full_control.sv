@@ -76,7 +76,9 @@ parameter LW = 7'b0000011,
             all_ctrl_out.WB_reg_write = 1'b1;
             all_ctrl_out.WB_mem_to_reg = 1'b0;
         end
-   
+
+		else
+			all_ctrl_out = '0;
 
     end
 
