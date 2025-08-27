@@ -11,10 +11,6 @@ module top_module(
     assign PCWrite = 1'b1; // testing for no hazard or forward detec
     assign if_id_write = 1'b1; // testing for no hazard or forward detec
 
-    // control unit output signals
-    logic [1:0] ALUOp;
-    logic ALUSrc, branch, mem_read, mem_write, reg_write, mem_to_reg;
-
     // mux control signals
     logic PCSrc, control_mux;
     
@@ -25,7 +21,7 @@ module top_module(
 
     //idex
     id_ex_data_t idex_data_in, idex_data_out;
-    id_ex_control_t idex_control_in, idex_control_out, all_ctrl_out;
+    id_ex_control_t idex_control_in, idex_control_out;
 
     //exmem
     ex_mem_data_t exmem_data_in, exmem_data_out;
@@ -78,15 +74,14 @@ module top_module(
  
     imm_gen imm_gen(.inst(ifid_data_out.instruc), .imm(idex_data_in.imm));
 
-    control control_unit(.instruc(ifid_data_out.instruc), .all_ctrl_out(all_ctrl_out));
+    control control_unit(.instruc(ifid_data_out.instruc), .all_ctrl_out(idex_control_in));
 
     assign idex_data_in.pc_address = ifid_data_out.pc_address;
 
     assign idex_data_in.funct_inst_bits = {ifid_data_out.instruc[30], ifid_data_out.instruc[14:12]};
     assign idex_data_in.rd = ifid_data_out.instruc[11:7];
 
-
-    ID_EX idex_reg(.clock(clock), .reset(reset), .data_in(idex_data_in), .control_in(all_ctrl_out),
+    ID_EX idex_reg(.clock(clock), .reset(reset), .data_in(idex_data_in), .control_in(idex_control_in),
                     .data_out(idex_data_out), .control_out(idex_control_out));
 
 
