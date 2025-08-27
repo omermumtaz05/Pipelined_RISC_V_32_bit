@@ -57,12 +57,12 @@ module top_module(
 
     ProgramCounter pc_reg(.clk(clock), .reset(reset),
                         .PCWrite(PCWrite), .next_pc(PC_in),
-                        .pc_out(ifid_data_in.pc_address));
+                          .pc_out(PC_out));
 
     pc_inc_adder pc_inc(.PC_out(PC_out), .inc_pc(inc_addrs));
 
     instruction_memory IM(.clock(clock), .address(PC_out), .read_instr(ifid_data_in.instruc));
-
+    assign ifid_data_in.pc_address = PC_out;
 
     IF_ID if_id(.clock(clock), .reset(reset), .if_id_write(if_id_write),
                 .data_in(ifid_data_in), .data_out(ifid_data_out));
