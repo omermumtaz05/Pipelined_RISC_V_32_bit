@@ -56,12 +56,19 @@ module instruction_memory(
     logic [7:0] instr [127:0];
 
    	initial begin
-
+	
 	// lw x2, 20(x0)
 	instr[0] = 8'h03;
 	instr[1] = 8'h21;
 	instr[2] = 8'h40;
 	instr[3] = 8'h01;
+
+
+	// addi x3, x0, 17
+	instr[4] = 8'h93;
+	instr[5] = 8'h01;
+	instr[6] = 8'h10;
+	instr[7] = 8'h01;
 	   
     end
   
