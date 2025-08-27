@@ -10,18 +10,6 @@ module top_module(
 
     assign PCWrite = 1'b1; // testing for no hazard or forward detec
     assign if_id_write = 1'b1; // testing for no hazard or forward detec
-import cpu_pkg::*;
-
-module top_module(
-    input logic clock, 
-    input logic reset
-    );
-
-    // pc and if/id control
-    logic PCWrite, if_id_write;
-
-    assign PCWrite = 1'b1; // testing for no hazard or forward detec
-    assign if_id_write = 1'b1; // testing for no hazard or forward detec
 
     // control unit output signals
     logic [1:0] ALUOp;
