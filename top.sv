@@ -81,6 +81,9 @@ module top_module(
     assign idex_data_in.funct_inst_bits = {ifid_data_out.instruc[30], ifid_data_out.instruc[14:12]};
     assign idex_data_in.rd = ifid_data_out.instruc[11:7];
 
+    assign idex_data_in.rs1 = ifid_data_out.instruc[19:15];
+    assign idex_data_in.rs2 = ifid_data_out.instruc[24:20];
+
     ID_EX idex_reg(.clock(clock), .reset(reset), .data_in(idex_data_in), .control_in(idex_control_in),
                     .data_out(idex_data_out), .control_out(idex_control_out));
 
@@ -89,7 +92,7 @@ module top_module(
 
 
     ALU alu(
-    .A(idex_data_out.reg_read_data1),
+    .A(ALU_inp_1),
     .B(ALU_inp_2),
     .control(ALU_control),
     .zero(exmem_control_in.ALU_zero), 
@@ -123,6 +126,30 @@ module top_module(
     .branch_address(exmem_data_in.branch_adder_sum)
     );
 
+    forwarding_unit fwd_unit(
+    .id_ex_rs1(idex_data_out.rs1),
+    .id_ex_rs2(idex_data_in.rs2),
+    .ex_mem_rd(exmem_data_out.rd),
+    .mem_wb_rd(memwb_data_out.rd),
+
+    .ex_mem_reg_write(exmem_control_out.WB_reg_write),
+    .mem_wb_reg_write(memwb_control_out.WB_reg_write),
+    
+    .forward_a(fwd_a_sel),
+    .forward_b(fwb_b_sel)
+    );
+
+    forward_a_mux fwd_a_mux(
+    .read_data_1(idex_data_out.reg_read_data1),
+    .ex_mem_out(exmem_data_out.ALU_result),
+    .mem_wb_out(memtoreg_mux_out),
+    .forward_a(fwd_a_sel),
+
+    .alu_inp_1(ALU_inp_1)
+    );
+
+
+
     assign exmem_data_in.reg_read_data2 = idex_data_out.reg_read_data2;
     assign exmem_data_in.rd = idex_data_out.rd;
 
@@ -134,7 +161,6 @@ module top_module(
     assign exmem_control_in.M_mem_write = idex_control_out.M_mem_write;
 
     EX_MEM exmem_reg(
-    
     .clock(clock),
     .reset(reset),
 
