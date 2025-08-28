@@ -1,3 +1,4 @@
+
 import cpu_pkg::*;
 
 module top_module(
@@ -153,7 +154,7 @@ module top_module(
 
     forwarding_unit fwd_unit(
     .id_ex_rs1(idex_data_out.rs1),
-    .id_ex_rs2(idex_data_in.rs2),
+    .id_ex_rs2(idex_data_out.rs2),
     .ex_mem_rd(exmem_data_out.rd),
     .mem_wb_rd(memwb_data_out.rd),
 
