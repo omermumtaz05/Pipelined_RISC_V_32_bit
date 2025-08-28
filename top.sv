@@ -129,7 +129,7 @@ module top_module(
 
     forwarding_unit fwd_unit(
     .id_ex_rs1(idex_data_out.rs1),
-    .id_ex_rs2(idex_data_in.rs2),
+    .id_ex_rs2(idex_data_out.rs2),
     .ex_mem_rd(exmem_data_out.rd),
     .mem_wb_rd(memwb_data_out.rd),
 
@@ -137,7 +137,7 @@ module top_module(
     .mem_wb_reg_write(memwb_control_out.WB_reg_write),
     
     .forward_a(fwd_a_sel),
-    .forward_b(fwb_b_sel)
+    .forward_b(fwd_b_sel)
     );
 
     forward_a_mux fwd_a_mux(
@@ -156,7 +156,7 @@ module top_module(
     .forward_b(fwd_b_sel),
 
     .alu_inp_2(fwd_b_out)
-);
+    );
 
     assign exmem_data_in.reg_read_data2 = idex_data_out.reg_read_data2;
     assign exmem_data_in.rd = idex_data_out.rd;
