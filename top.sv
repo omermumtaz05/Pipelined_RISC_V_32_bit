@@ -8,8 +8,8 @@ module top_module(
     // pc and if/id control
     logic PCWrite, if_id_write;
 
-    assign PCWrite = 1'b1; // testing for no hazard or forward detec
-    assign if_id_write = 1'b1; // testing for no hazard or forward detec
+  //  assign PCWrite = 1'b1; // testing for no hazard or forward detec
+  //  assign if_id_write = 1'b1; // testing for no hazard or forward detec
 
     // mux control signals
     logic PCSrc, control_mux;
@@ -21,7 +21,7 @@ module top_module(
 
     //idex
     id_ex_data_t idex_data_in, idex_data_out;
-    id_ex_control_t idex_control_in, idex_control_out;
+    id_ex_control_t idex_control_in, idex_control_out, ctrl_unit_out;
 
     //exmem
     ex_mem_data_t exmem_data_in, exmem_data_out;
@@ -45,6 +45,8 @@ module top_module(
     logic [31:0] inc_addrs, branch_addrs, PC_in, PC_out;
     logic [31:0] memtoreg_mux_out;
     logic [31:0] imm;
+
+    logic [4:0] if_id_rs1, if_id_rs2;
     
 
     // IF stage:
@@ -71,12 +73,34 @@ module top_module(
                 .writeReg(memwb_data_out.rd), .writeData(memtoreg_mux_out),
                 .regWrite(memwb_control_out.WB_reg_write), .readData1(idex_data_in.reg_read_data1), .readData2(idex_data_in.reg_read_data2));
 
+    assign if_id_rs1 = ifid_data_out.instruc[19:15];
+    assign if_id_rs2 = ifid_data_out.instruc[24:20];
 
- 
+    hazard_detection hzd_dtc_unit(
+    .id_ex_mem_read(idex_control_out.M_mem_read),
+    .id_ex_rd(idex_data_out.rd),
+    .if_id_rs1(if_id_rs1),
+    .if_id_rs2(if_id_rs2),
+
+
+    .PCWrite(PCWrite),
+    .if_id_write(if_id_write),
+    .control_mux_sig(control_mux)
+    );
+
+
     imm_gen imm_gen(.inst(ifid_data_out.instruc), .imm(idex_data_in.imm));
 
-    control control_unit(.instruc(ifid_data_out.instruc), .all_ctrl_out(idex_control_in));
+    control control_unit(.instruc(ifid_data_out.instruc), .all_ctrl_out(ctrl_unit_out));
 
+    control_mux ctrl_mux(
+    .all_control_in(ctrl_unit_out),
+
+    .stall(control_mux),
+
+    .ctrl_mux_out(idex_control_in)
+
+);
     assign idex_data_in.pc_address = ifid_data_out.pc_address;
 
     assign idex_data_in.funct_inst_bits = {ifid_data_out.instruc[30], ifid_data_out.instruc[14:12]};
@@ -129,7 +153,7 @@ module top_module(
 
     forwarding_unit fwd_unit(
     .id_ex_rs1(idex_data_out.rs1),
-    .id_ex_rs2(idex_data_out.rs2),
+    .id_ex_rs2(idex_data_in.rs2),
     .ex_mem_rd(exmem_data_out.rd),
     .mem_wb_rd(memwb_data_out.rd),
 
@@ -137,7 +161,7 @@ module top_module(
     .mem_wb_reg_write(memwb_control_out.WB_reg_write),
     
     .forward_a(fwd_a_sel),
-    .forward_b(fwd_b_sel)
+    .forward_b(fwb_b_sel)
     );
 
     forward_a_mux fwd_a_mux(
@@ -156,7 +180,7 @@ module top_module(
     .forward_b(fwd_b_sel),
 
     .alu_inp_2(fwd_b_out)
-    );
+);
 
     assign exmem_data_in.reg_read_data2 = idex_data_out.reg_read_data2;
     assign exmem_data_in.rd = idex_data_out.rd;
