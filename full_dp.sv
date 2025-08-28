@@ -95,6 +95,18 @@ module instruction_memory(
 	instr[21] = 8'h03;
 	instr[22] = 8'h52;
 	instr[23] = 8'h00;
+
+	//lw x8, 40(x0) 
+	instr[24] = 8'h03;
+	instr[25] = 8'h24;
+	instr[26] = 8'h80;
+	instr[27] = 8'h02;
+
+	//addi x9, x8, 256 - load use hazard check
+	instr[28] = 8'h93;
+	instr[29] = 8'h04;
+	instr[30] = 8'h04;
+	instr[31] = 8'h10;
 	   
     end
   
@@ -305,12 +317,26 @@ module data_memory(
 
     logic [7:0] data [127:0];
  
-   
+    integer i;
+
     always_ff @ (posedge clk)
    begin
     if(reset)
-	data[20] = 32'h0000006D;
-    
+    begin
+	/*(for(i = 0; i < 128; i = i + 1)
+		if(i != 20)
+			data[i] = 0;*/
+
+	data[20] = 8'h6D;
+	data[21] = '0;
+	data[22] = '0;
+	data[23] = '0;
+
+	data[40] = 8'hFF;
+	data[41] = 8'h0;
+	data[42] = 8'hFF;
+	data[43] = 8'h00;
+    end
     else if(memWrite)
        begin
             data[address] <= writeData[7:0];
