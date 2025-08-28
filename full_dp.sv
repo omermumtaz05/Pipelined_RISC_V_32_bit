@@ -150,7 +150,7 @@ module control_mux(
 
 );
 
-assign all_control_out = (stall) ? '0: all_control_in;
+assign ctrl_mux_out = (stall) ? '0: all_control_in;
 
 
 endmodule
