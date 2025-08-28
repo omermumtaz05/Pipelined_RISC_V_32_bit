@@ -161,7 +161,7 @@ module top_module(
     .mem_wb_reg_write(memwb_control_out.WB_reg_write),
     
     .forward_a(fwd_a_sel),
-    .forward_b(fwb_b_sel)
+    .forward_b(fwd_b_sel)
     );
 
     forward_a_mux fwd_a_mux(
