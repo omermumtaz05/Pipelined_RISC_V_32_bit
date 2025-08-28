@@ -76,11 +76,23 @@ module instruction_memory(
 	instr[10] = 8'h31;
 	instr[11] = 8'h00;
 
-	// addi x5, x3, 3 - memwb hazard
+	// addi x5, x3, 15 - memwb hazard
 	instr[12] = 8'h93;
 	instr[13] = 8'h82;
 	instr[14] = 8'hf1;
 	instr[15] = 8'h00;
+
+	// add x6, x3, x5 - ex mem fwd B hazard
+	instr[16] = 8'h33;
+	instr[17] = 8'h83;
+	instr[18] = 8'h51;
+	instr[19] = 8'h00;
+
+	// add x7, x4, x5 - mem wb fwd B hazard
+	instr[20] = 8'hb3;
+	instr[21] = 8'h03;
+	instr[22] = 8'h52;
+	instr[23] = 8'h00;
 	   
     end
   
@@ -159,6 +171,11 @@ module register(
         begin
             readData1 = RF[readReg1];
             readData2 = RF[readReg2];
+
+            if(readReg1 == writeReg)
+                readData1 = writeData;
+            if(readReg2 == writeReg)
+                readData2 = writeData;
         end
 
 endmodule
