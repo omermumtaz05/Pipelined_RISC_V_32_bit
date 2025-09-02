@@ -1,4 +1,3 @@
-
 import cpu_pkg::*;
 
 module top_module(
@@ -61,7 +60,7 @@ module top_module(
 
     pc_inc_adder pc_inc(.PC_out(PC_out), .inc_pc(inc_addrs));
 
-    instruction_memory IM(.clock(clock), .address(PC_out), .read_instr(ifid_data_in.instruc));
+    instruction_memory IM( .address(PC_out), .read_instr(ifid_data_in.instruc));
     assign ifid_data_in.pc_address = PC_out;
 
     IF_ID if_id(.clock(clock), .reset(reset), .if_id_write(if_id_write),
@@ -154,7 +153,7 @@ module top_module(
 
     forwarding_unit fwd_unit(
     .id_ex_rs1(idex_data_out.rs1),
-    .id_ex_rs2(idex_data_out.rs2),
+    .id_ex_rs2(idex_data_in.rs2),
     .ex_mem_rd(exmem_data_out.rd),
     .mem_wb_rd(memwb_data_out.rd),
 
