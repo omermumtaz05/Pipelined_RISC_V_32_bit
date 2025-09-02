@@ -18,7 +18,7 @@ module ProgramCounter(
       pc_out <= '0;
     else if(PCWrite)
 	begin
-      pc_out <= next_pc; // & 32'h0000007F;
+      pc_out <= next_pc & 32'h0000007F;
      
   end
       
@@ -49,8 +49,6 @@ endmodule
 
 
 module instruction_memory(
- 	input logic clock,
-  
     input logic [31:0]address,
     output logic [31:0] read_instr
 );
@@ -107,10 +105,16 @@ module instruction_memory(
 	instr[29] = 8'h04;
 	instr[30] = 8'h04;
 	instr[31] = 8'h10;
+
+	//addi x10, x0, 50
+	instr[32] = 8'h13;
+	instr[33] = 8'h05;
+	instr[34] = 8'h20;
+	instr[35] = 8'h03;
 	   
     end
   
-    always_ff @ (posedge clock)
+    always_comb
        begin
             read_instr <= {instr[address + 3], instr[address + 2], 	instr[address + 1], instr[address]};
        end
@@ -173,6 +177,7 @@ module register(
   	input reset,
 
     input logic [4:0] readReg1,
+
     input logic [4:0] readReg2,
     input logic [4:0] writeReg,
     input logic [31:0] writeData,
@@ -333,7 +338,7 @@ module data_memory(
 	data[23] = '0;
 
 	data[40] = 8'hFF;
-	data[41] = 8'h0;
+	data[41] = 8'h00;
 	data[42] = 8'hFF;
 	data[43] = 8'h00;
     end
