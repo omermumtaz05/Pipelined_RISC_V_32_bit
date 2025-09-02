@@ -1,1 +1,1 @@
-# Pipelined_RISC_V_32_bit
+# Pipelined RISC V 32 bit
