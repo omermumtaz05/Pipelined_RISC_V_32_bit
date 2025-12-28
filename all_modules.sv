@@ -1,3 +1,4 @@
+// Code your design here
 
 package cpu_pkg;
 
@@ -198,6 +199,12 @@ module instruction_memory(
 	instr[33] = 8'h05;
 	instr[34] = 8'h20;
 	instr[35] = 8'h03;
+      
+    //sw x9, 100(x0)
+      instr[36] = 8'h23;
+      instr[37] = 8'h22;
+      instr[38] = 8'h90;
+      instr[39] = 8'h06;
 	   
     end
   
@@ -974,7 +981,7 @@ module top_module(
 
     forwarding_unit fwd_unit(
     .id_ex_rs1(idex_data_out.rs1),
-    .id_ex_rs2(idex_data_in.rs2),
+     .id_ex_rs2(idex_data_out.rs2),
     .ex_mem_rd(exmem_data_out.rd),
     .mem_wb_rd(memwb_data_out.rd),
 
@@ -1003,7 +1010,7 @@ module top_module(
     .alu_inp_2(fwd_b_out)
 );
 
-    assign exmem_data_in.reg_read_data2 = idex_data_out.reg_read_data2;
+    assign exmem_data_in.reg_read_data2 = fwd_b_out;
     assign exmem_data_in.rd = idex_data_out.rd;
 
     assign exmem_control_in.WB_reg_write = idex_control_out.WB_reg_write;
