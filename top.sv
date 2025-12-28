@@ -182,7 +182,7 @@ module top_module(
     .alu_inp_2(fwd_b_out)
 );
 
-    assign exmem_data_in.reg_read_data2 = idex_data_out.reg_read_data2;
+    assign exmem_data_in.reg_read_data2 = fwd_b_out;
     assign exmem_data_in.rd = idex_data_out.rd;
 
     assign exmem_control_in.WB_reg_write = idex_control_out.WB_reg_write;
