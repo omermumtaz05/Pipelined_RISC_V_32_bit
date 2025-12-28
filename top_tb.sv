@@ -15,74 +15,90 @@ top_module uut(
   initial clock = 1;
   always #5 clock = ~clock;  // Toggle every 5 ns ? 10 ns period = 100 MHz
 
+  /*always @(posedge clock) begin
+    // debug sw x9
+    if (uut.idex_data_out.pc_address == 8'h24) begin
+      $display("=== DEBUG: sw x9, 100(x0) in ID/EX stage ===");
+      $display("  Address to write to = %d", uut.exmem_data_in.ALU_result);
+      $display("  Data writing into ex mem reg = %h", uut.exmem_data_in.reg_read_data2);
+  
+      $display("  Data to write out of idex reg = %h", uut.idex_data_out.reg_read_data2);
+    end
+    
+    if (uut.ifid_data_out.pc_address == 8'h24) begin
+      $display("=== DEBUG: sw x9, 100(x0) in IF/ID stage ===");
+      //$display("  Register 1 = %h", uut.ifid_data_in.reg_read_data1);
+      //$display("  Register 2 = %h", uut.ifid_data_in.reg_read_data2);
+
+      $display("  Register 1 output = %h", uut.idex_data_in.reg_read_data1);
+      $display("  Register 2 (data important!) output = %h", uut.idex_data_in.reg_read_data2);
+      
+      $display("  instruction = %h", uut.ifid_data_out.instruc);
+      $display("  rs2 field (bits 24:20) = %d", uut.ifid_data_out.instruc[24:20]);
+      $display("  RF[9] actual value = %h", uut.RF.RF[9]);
+      
+    end
+end*/
+  
   // Test sequence
   initial begin
-    
-    // Initialize inputs
-    reset = 1; 
-    
+    reset = 1;
     #10 reset = 0;
     
-    #10
+    repeat(20) @(posedge clock);
+    
+    // Add these!
+    $display("=== CHECKING RESULTS ===");
+     $display("x2 = %h (expected 0000006d)", uut.RF.RF[2]);
+    $display("x3 = %h (expected 00000011)", uut.RF.RF[3]);
+    $display("x4 = %h (expected 00000014)", uut.RF.RF[4]);
+    $display("x5 = %h (expected 00000020)", uut.RF.RF[5]);
+    $display("x6 = %h (expected 00000031)", uut.RF.RF[6]);
+    $display("x7 = %h (expected 00000034)", uut.RF.RF[7]);
+    $display("x8 = %h (expected 00FF00FF)", uut.RF.RF[8]);
+    $display("x9 = %h (expected 00FF01FF)", uut.RF.RF[9]);
+    $display("x10 = %h (expected 00000032)", uut.RF.RF[10]);
+    
+    if (uut.RF.RF[2] === 32'h6D) $display("PASS: lw x2");
+    else $error("FAIL: lw x2");
+    
+    if (uut.RF.RF[3] === 32'h11) $display("PASS: addi x3, x0, 17");
+    else $error("FAIL: addi x3, x0, 17");
+    
+    if (uut.RF.RF[4] === 32'h14) $display("PASS: addi x4, x3, 3");
+    else $error("FAIL: addi x4, x3, 3");
+    
+    if (uut.RF.RF[5] === 32'h20) $display("PASS: addi x5, x3, 15");
+    else $error("FAIL: addi x5, x3, 15");
+    
+    if (uut.RF.RF[6] === 32'h31) $display("PASS: add x6, x3, x5");
+    else $error("FAIL: add x6, x3, x5");
+    
+    if (uut.RF.RF[7] === 32'h34) $display("PASS: add x7, x4, x5");
+    else $error("FAIL: add x7, x4, x5");
+    
+    if (uut.RF.RF[8] === 32'hFF00FF) $display("PASS: lw x8, 40(x0)");
+    else $error("FAIL: lw x8, 40(x0)");
+    
+    if (uut.RF.RF[9] === 32'hFF01FF) $display("PASS: addi x9, x8, 256");
+    else $error("FAIL: addi x9, x8, 256");
+    
+    if (uut.RF.RF[10] === 32'h32) $display("PASS: addi x10, x0, 50");
+    else $error("FAIL: addi x10, x0, 50");
+    
+    if (uut.DM.data[100] === 8'hFF &&
+        uut.DM.data[101] === 8'h01 &&
+        uut.DM.data[102] === 8'hFF &&
+        uut.DM.data[103] === 8'h00) 
+      
+      $display("PASS: sw x9, 100(x0)");
+    
+    else 
+      $error("FAIL: sw x9, 100(x0)");
     
     
-    #10 
-    
-    
-    #10 
-    
-    
-    #10 
-    #10 
-	#10
-	#10
-	#10
-	#10
-	#10
-	#10
-	#10
-	#10
-	#10
-	#10
-#10
-	#10
-	#10
-	#10
-	#10
-#10
-	#10
-	#10
-	#10
-	#10
-#10
-	#10
-	#10
-#10
-#10
-#10
-#10
-#10
-#10
-#10
-#10
-#10
-#10
-#10
-#10
-#10
-#10
-#10
-#10
-#10
-#10
-#10
-#10
-#10
-#10
-    #10 $stop;
-    
-    
-   
-  end
+    $display("=== DONE ===");
+    $stop;
+end
 
 endmodule
