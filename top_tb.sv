@@ -1,3 +1,5 @@
+// Code your testbench here
+// or browse Examples
 
 module top_tb();
 
@@ -9,37 +11,26 @@ top_module uut(
 	.clock(clock),
 	.reset(reset)
 );
+  
 
 
 
   initial clock = 1;
   always #5 clock = ~clock;  // Toggle every 5 ns ? 10 ns period = 100 MHz
 
-  /*always @(posedge clock) begin
-    // debug sw x9
-    if (uut.idex_data_out.pc_address == 8'h24) begin
-      $display("=== DEBUG: sw x9, 100(x0) in ID/EX stage ===");
-      $display("  Address to write to = %d", uut.exmem_data_in.ALU_result);
-      $display("  Data writing into ex mem reg = %h", uut.exmem_data_in.reg_read_data2);
-  
-      $display("  Data to write out of idex reg = %h", uut.idex_data_out.reg_read_data2);
+  always @(posedge clock) begin
+    if (!reset) begin
+        $display("=== Cycle %0t ===", $time);
+      $display("  PC = %0h", uut.PC_out);
+      $display("  RF[2]=%0h RF[3]=%0h RF[4]=%0h RF[5]=%0h", 
+                 uut.RF.RF[2], uut.RF.RF[3], uut.RF.RF[4], uut.RF.RF[5]);
+      $display("  RF[6]=%0h RF[7]=%0h RF[8]=%0h RF[9]=%0h RF[10]=%0h DM[100]=%0h DM[101]=%0h DM[102]=%0h DM[103]=%0h ",
+               uut.RF.RF[6], uut.RF.RF[7], uut.RF.RF[8], uut.RF.RF[9], uut.RF.RF[10], uut.DM.data[100], uut.DM.data[101], uut.DM.data[102], uut.DM.data[103]);
+        $display("");
     end
-    
-    if (uut.ifid_data_out.pc_address == 8'h24) begin
-      $display("=== DEBUG: sw x9, 100(x0) in IF/ID stage ===");
-      //$display("  Register 1 = %h", uut.ifid_data_in.reg_read_data1);
-      //$display("  Register 2 = %h", uut.ifid_data_in.reg_read_data2);
+end
+  
 
-      $display("  Register 1 output = %h", uut.idex_data_in.reg_read_data1);
-      $display("  Register 2 (data important!) output = %h", uut.idex_data_in.reg_read_data2);
-      
-      $display("  instruction = %h", uut.ifid_data_out.instruc);
-      $display("  rs2 field (bits 24:20) = %d", uut.ifid_data_out.instruc[24:20]);
-      $display("  RF[9] actual value = %h", uut.RF.RF[9]);
-      
-    end
-end*/
-  
   // Test sequence
   initial begin
     reset = 1;
@@ -95,6 +86,14 @@ end*/
     
     else 
       $error("FAIL: sw x9, 100(x0)");
+    
+        $display("=== Cycle %0t ===", $time);
+        $display("  PC = %h", uut.PC_out);
+        $display("  RF[2]=%h RF[3]=%h RF[4]=%h RF[5]=%h", 
+                 uut.RF.RF[2], uut.RF.RF[3], uut.RF.RF[4], uut.RF.RF[5]);
+        $display("  RF[6]=%h RF[7]=%h RF[8]=%h RF[9]=%h",
+                 uut.RF.RF[6], uut.RF.RF[7], uut.RF.RF[8], uut.RF.RF[9]);
+        $display("");
     
     
     $display("=== DONE ===");
