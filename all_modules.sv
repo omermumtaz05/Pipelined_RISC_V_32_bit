@@ -1,5 +1,6 @@
 // Code your design here
 // Code your design here
+// Code your design here
 
 package cpu_pkg;
 
@@ -323,10 +324,10 @@ module comparator(
 
   always_ff @ (posedge clock)
     begin
-      if(reset)
+      if(reset || (regData1 != regData2))
         equal_to <= '0;
-      else
-        if(regData1 == regData2)
+      
+      else if(regData1 == regData2)
       
         	equal_to <= 1'b1;
     end
@@ -591,7 +592,17 @@ parameter LW = 7'b0000011,
             if_id_flush = 1'b0;
         end
    
-
+		else
+          begin
+            all_ctrl_out.EX_ALU_Op = 2'b00;
+            all_ctrl_out.EX_ALU_Src = 1'b0;
+            all_ctrl_out.M_branch = 1'b0;
+            all_ctrl_out.M_mem_read = 1'b0;
+            all_ctrl_out.M_mem_write = 1'b0;
+            all_ctrl_out.WB_reg_write = 1'b0;
+            all_ctrl_out.WB_mem_to_reg = 1'b0;
+            if_id_flush = 1'b0;
+          end
     end
 
 
@@ -756,7 +767,7 @@ module IF_ID(
             end
       
         
-  	   else
+  	else if(if_id_write)
             begin
                 data_out <= data_in;
 
