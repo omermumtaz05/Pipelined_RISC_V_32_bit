@@ -312,15 +312,24 @@ module register(
 endmodule
 
 module comparator(
-    input [31:0] regData1,
-    input [31:0] regData2,
-
-    output equal_to
+    input logic [31:0] regData1,
+    input logic [31:0] regData2,
+	input reset,
+  	input clock,
+  
+    output logic equal_to
 
 );
 
-
-  assign equal_to = (regData1 == regData2);
+  always_ff @ (posedge clock)
+    begin
+      if(reset)
+        equal_to <= '0;
+      else
+        if(regData1 == regData2)
+      
+        	equal_to <= 1'b1;
+    end
 
 
 endmodule
@@ -979,7 +988,8 @@ module top_module(
     comparator comp(
       .regData1(idex_data_in.reg_read_data1),
       .regData2(idex_data_in.reg_read_data2),
-      
+      .reset(reset),
+      .clock(clock),
       .equal_to(equal_to)
       
     );
