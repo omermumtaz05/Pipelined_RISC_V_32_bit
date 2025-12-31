@@ -1,4 +1,5 @@
 // Code your design here
+// Code your design here
 
 package cpu_pkg;
 
@@ -13,6 +14,7 @@ typedef struct packed {
 // id ex control and data
 
 typedef struct packed {
+  
     // WB stage control
     reg WB_reg_write;
     reg WB_mem_to_reg;
@@ -309,6 +311,19 @@ module register(
 
 endmodule
 
+module comparator(
+    input [31:0] regData1,
+    input [31:0] regData2,
+
+    output equal_to
+
+);
+
+
+  assign equal_to = (regData1 == regData2);
+
+
+endmodule
 
 // EX stage:
 
@@ -475,8 +490,10 @@ import cpu_pkg::*;
 
 module control(
     input logic [31:0] instruc,
-
-    output id_ex_control_t all_ctrl_out
+	input logic equal_to, 
+  
+    output id_ex_control_t all_ctrl_out,
+  	output logic if_id_flush
 
 );
 
@@ -498,6 +515,7 @@ parameter LW = 7'b0000011,
             all_ctrl_out.M_mem_write = 1'b0;
             all_ctrl_out.WB_reg_write = 1'b1;
             all_ctrl_out.WB_mem_to_reg = 1'b0;
+            if_id_flush = 1'b0;
         end
         
 
@@ -511,6 +529,7 @@ parameter LW = 7'b0000011,
             all_ctrl_out.M_mem_write = 1'b0;
             all_ctrl_out.WB_reg_write = 1'b1;
             all_ctrl_out.WB_mem_to_reg = 1'b1;
+            if_id_flush = 1'b0;
         end
         
 
@@ -523,10 +542,11 @@ parameter LW = 7'b0000011,
             all_ctrl_out.M_mem_write = 1'b1;
             all_ctrl_out.WB_reg_write = 1'b0;
             all_ctrl_out.WB_mem_to_reg = 1'bx;
+            if_id_flush = 1'b0;
         end
         
 
-        else if(instruc[6:0] == BEQ)
+      else if((instruc[6:0] == BEQ) && equal_to)
         begin
             all_ctrl_out.EX_ALU_Op = 2'b01;
             all_ctrl_out.EX_ALU_Src = 1'b0;
@@ -535,8 +555,20 @@ parameter LW = 7'b0000011,
             all_ctrl_out.M_mem_write = 1'b0;
             all_ctrl_out.WB_reg_write = 1'b0;
             all_ctrl_out.WB_mem_to_reg = 1'bx;
+            if_id_flush = 1'b1;
         end
         
+      else if((instruc[6:0] == BEQ) && !equal_to)
+        begin
+            all_ctrl_out.EX_ALU_Op = 2'b01;
+            all_ctrl_out.EX_ALU_Src = 1'b0;
+            all_ctrl_out.M_branch = 1'b1;
+            all_ctrl_out.M_mem_read = 1'b0;
+            all_ctrl_out.M_mem_write = 1'b0;
+            all_ctrl_out.WB_reg_write = 1'b0;
+            all_ctrl_out.WB_mem_to_reg = 1'bx;
+            if_id_flush = 1'b0;
+        end
 
         else if(instruc[6:0] == ADDI)
         begin
@@ -547,10 +579,9 @@ parameter LW = 7'b0000011,
             all_ctrl_out.M_mem_write = 1'b0;
             all_ctrl_out.WB_reg_write = 1'b1;
             all_ctrl_out.WB_mem_to_reg = 1'b0;
+            if_id_flush = 1'b0;
         end
-
-		else
-			all_ctrl_out = '0;
+   
 
     end
 
@@ -703,18 +734,20 @@ module IF_ID(
     input logic reset,
     input logic if_id_write,
     input if_id_data_t data_in,
+  
+    input if_id_flush,
 
     output if_id_data_t data_out
 );
 
     always_ff @ (posedge clock)
-      if(reset)
+      if(reset || if_id_flush)
             begin
                 data_out <= '0;
             end
       
         
-        else if(if_id_write)
+  	   else
             begin
                 data_out <= data_in;
 
@@ -866,6 +899,7 @@ module top_module(
     logic [31:0] ALU_inp_1, ALU_inp_2;
     logic [31:0] fwd_b_out;
 
+
     //alu ctrl and zero
     logic [3:0] ALU_control;
     logic zero;
@@ -873,7 +907,10 @@ module top_module(
     logic [31:0] inc_addrs, branch_addrs, PC_in, PC_out;
     logic [31:0] memtoreg_mux_out;
     logic [31:0] imm;
-
+  
+	//branch
+  	logic equal_to;
+  	logic if_id_flush;
     logic [4:0] if_id_rs1, if_id_rs2;
     
 
@@ -891,7 +928,7 @@ module top_module(
     instruction_memory IM( .address(PC_out), .read_instr(ifid_data_in.instruc));
     assign ifid_data_in.pc_address = PC_out;
 
-    IF_ID if_id(.clock(clock), .reset(reset), .if_id_write(if_id_write),
+  IF_ID if_id(.clock(clock), .reset(reset), .if_id_write(if_id_write), .if_id_flush(if_id_flush),
                 .data_in(ifid_data_in), .data_out(ifid_data_out));
 
     // ID stage:
@@ -919,7 +956,7 @@ module top_module(
 
     imm_gen imm_gen(.inst(ifid_data_out.instruc), .imm(idex_data_in.imm));
 
-    control control_unit(.instruc(ifid_data_out.instruc), .all_ctrl_out(ctrl_unit_out));
+  control control_unit(.instruc(ifid_data_out.instruc), .equal_to(equal_to), .all_ctrl_out(ctrl_unit_out), .if_id_flush(if_id_flush));
 
     control_mux ctrl_mux(
     .all_control_in(ctrl_unit_out),
@@ -928,7 +965,27 @@ module top_module(
 
     .ctrl_mux_out(idex_control_in)
 
-);
+	);
+  	
+    // assign PCSrc = exmem_control_out.M_branch & exmem_control_out.ALU_zero;
+  
+     branch_pc_adder branch_addr(
+       .PC_address(ifid_data_out.pc_address),
+       .imm(idex_data_in.imm),
+
+       .branch_address(branch_addrs)
+      );
+
+    comparator comp(
+      .regData1(idex_data_in.reg_read_data1),
+      .regData2(idex_data_in.reg_read_data2),
+      
+      .equal_to(equal_to)
+      
+    );
+  
+  	assign PCSrc = ctrl_unit_out.M_branch & equal_to;
+  
     assign idex_data_in.pc_address = ifid_data_out.pc_address;
 
     assign idex_data_in.funct_inst_bits = {ifid_data_out.instruc[30], ifid_data_out.instruc[14:12]};
@@ -971,13 +1028,6 @@ module top_module(
     .ALU_inp2(ALU_inp_2)
     );
 
-
-    branch_pc_adder branch_addr(
-    .PC_address(idex_data_out.pc_address),
-    .imm(idex_data_out.imm),
-
-    .branch_address(exmem_data_in.branch_adder_sum)
-    );
 
     forwarding_unit fwd_unit(
     .id_ex_rs1(idex_data_out.rs1),
@@ -1043,8 +1093,6 @@ module top_module(
     .memWrite(exmem_control_out.M_mem_write),
     .memData(memwb_data_in.read_data)
     );
-
-    assign PCSrc = exmem_control_out.M_branch & exmem_control_out.ALU_zero;
 
     assign memwb_data_in.ALU_result = exmem_data_out.ALU_result;
     assign memwb_data_in.rd = exmem_data_out.rd;
