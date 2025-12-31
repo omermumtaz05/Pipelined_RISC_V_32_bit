@@ -123,7 +123,7 @@ module PC_source_mux(
 
 );
 
-    assign PC_input = ~PCSrc ? increment_address : branch_address;
+    assign PC_input = PCSrc ?  branch_address : increment_address;
        
 
 endmodule
@@ -984,7 +984,7 @@ module top_module(
       
     );
   
-  	assign PCSrc = ctrl_unit_out.M_branch & equal_to;
+  	assign PCSrc = ctrl_unit_out.M_branch && equal_to;
   
     assign idex_data_in.pc_address = ifid_data_out.pc_address;
 
