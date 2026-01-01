@@ -1,8 +1,3 @@
-// Code your design here
-// Code your design here
-// Code your design here
-// Code your design here
-// Code your design here
 
 package cpu_pkg;
 
@@ -211,9 +206,10 @@ module instruction_memory(
       instr[38] = 8'h90;
       instr[39] = 8'h06;
       
-      //beq x0, x0, 8
+      //beq x0, x0, 4 
+      //changed to be 4 up, tested 8 up bruh!
       instr[40] = 8'h63;
-      instr[41] = 8'h04;
+      instr[41] = 8'h02; // make 04 for beq x0, x0, 8
       instr[42] = 8'h00;
       instr[43] = 8'h00;
       
@@ -348,7 +344,7 @@ module comparator(
 
 );
 
-  always_ff @ (posedge clock)
+  always_comb// @ (posedge clock)
     begin
       if(reset || (regData1 != regData2))
         equal_to <= '0;
