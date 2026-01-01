@@ -19,7 +19,7 @@ top_module uut(
 
   initial clock = 1;
   always #5 clock = ~clock;  // Toggle every 5 ns ? 10 ns period = 100 MHz
-
+/*
   always @(posedge clock) begin
     if (!reset) begin
         $display("=== Cycle %0t ===", $time);
@@ -34,8 +34,26 @@ top_module uut(
         $display("");
     end
 end
+  */
   
-
+  always @(posedge clock) begin
+    if (!reset) begin
+        $display("=== Cycle %0t ===", $time);
+      $display("  PC = %0h", uut.PC_out);
+      $display(" Instruction in ID stage = %0h", uut.ifid_data_out.instruc);
+      $display(" RF[8]=%0h RF[9]=%0h RF[10]=%0h", uut.RF.RF[8], uut.RF.RF[9], uut.RF.RF[10]);
+      $display(" RF[11] = %0h, RF[12] = %0h", uut.RF.RF[11], uut.RF.RF[12]);
+      
+      $display(" PCSrc = %b, if_id_flush = %b", uut.PCSrc, uut.if_id_flush);
+      $display("Equal to = %b", uut.equal_to);
+      $display(" read data reg 1 = %0d", uut.idex_data_in.reg_read_data1);
+      $display(" read data reg 2 = %0d", uut.idex_data_in.reg_read_data2);
+      $display("DM[100]=%0h DM[101]=%0h DM[102]=%0h DM[103]=%0h ",
+                uut.DM.data[100], uut.DM.data[101], uut.DM.data[102], uut.DM.data[103]);
+      
+        $display("");
+    end
+end
   // Test sequence
   initial begin
     reset = 1;
