@@ -1,5 +1,7 @@
 // Code your testbench here
 // or browse Examples
+// Code your testbench here
+// or browse Examples
 
 module top_tb();
 
@@ -24,8 +26,11 @@ top_module uut(
       $display("  PC = %0h", uut.PC_out);
       $display("  RF[2]=%0h RF[3]=%0h RF[4]=%0h RF[5]=%0h", 
                  uut.RF.RF[2], uut.RF.RF[3], uut.RF.RF[4], uut.RF.RF[5]);
-      $display("  RF[6]=%0h RF[7]=%0h RF[8]=%0h RF[9]=%0h RF[10]=%0h DM[100]=%0h DM[101]=%0h DM[102]=%0h DM[103]=%0h ",
-               uut.RF.RF[6], uut.RF.RF[7], uut.RF.RF[8], uut.RF.RF[9], uut.RF.RF[10], uut.DM.data[100], uut.DM.data[101], uut.DM.data[102], uut.DM.data[103]);
+      $display("  RF[6]=%0h RF[7]=%0h RF[8]=%0h RF[9]=%0h RF[10]=%0h", uut.RF.RF[6], uut.RF.RF[7], uut.RF.RF[8], uut.RF.RF[9], uut.RF.RF[10]);
+      $display(" RF[11] = %0h, RF[12] = %0h", uut.RF.RF[11], uut.RF.RF[12]);
+      $display("DM[100]=%0h DM[101]=%0h DM[102]=%0h DM[103]=%0h ",
+                uut.DM.data[100], uut.DM.data[101], uut.DM.data[102], uut.DM.data[103]);
+      
         $display("");
     end
 end
