@@ -2,6 +2,7 @@
 // Code your design here
 // Code your design here
 // Code your design here
+// Code your design here
 
 package cpu_pkg;
 
@@ -300,7 +301,7 @@ module register(
     input logic regWrite,
 
     output logic [31:0] readData1,
-    output logic [31:0] readData2
+  output logic [31:0] readData2
 );
 
     logic [31:0] RF [31:0]; // 32 registers each carrying 32 bits of data each
@@ -328,6 +329,12 @@ module register(
             if(readReg2 == writeReg)
                 readData2 = writeData;
         end
+  
+  	/*always_comb
+      begin
+        if(
+      end
+  */
 
 endmodule
 
