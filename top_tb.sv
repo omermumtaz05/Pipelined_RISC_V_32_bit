@@ -38,11 +38,11 @@ end
       $display(" Instruction in ID stage = %0h", uut.ifid_data_out.instruc);
       $display(" RF[8]=%0h RF[9]=%0h RF[10]=%0h", uut.RF.RF[8], uut.RF.RF[9], uut.RF.RF[10]);
       
-      $display("id ex rd = %0d, ex mem alu data in = %0h", uut.idex_data_out.rd, uut.exmem_data_in.ALU_result);
+      $display("id ex rd = %0d, ex mem alu data in = %0h, id ex reg write", uut.idex_data_out.rd, uut.exmem_data_in.ALU_result, uut.idex_control_out.WB_reg_write);
       
-      $display("ex mem rd = %0d, ex mem alu data out = %0h", uut.exmem_data_out.rd, uut.exmem_data_out.ALU_result);
+      $display("ex mem rd = %0d, ex mem alu data out = %0h, ex mem reg write = %0b", uut.exmem_data_out.rd, uut.exmem_data_out.ALU_result, uut.exmem_control_out.WB_reg_write);
       
-      $display("mem wb rd = %0d, mem to reg mux out = %0h", uut.memwb_data_out.rd, uut.memtoreg_mux_out);
+      $display("mem wb rd = %0d, mem to reg mux out = %0h, mem wb reg write = %0b", uut.memwb_data_out.rd, uut.memtoreg_mux_out, uut.memwb_control_out.WB_reg_write);
                
                
                
@@ -63,7 +63,7 @@ end
     reset = 1;
     #10 reset = 0;
     
-    repeat(20) @(posedge clock);
+    repeat(22) @(posedge clock);
     
     // Add these!
     $display("=== CHECKING RESULTS ===");
