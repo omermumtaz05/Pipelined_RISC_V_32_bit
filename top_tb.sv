@@ -1,8 +1,3 @@
-// Code your testbench here
-// or browse Examples
-// Code your testbench here
-// or browse Examples
-
 module top_tb();
 
 logic clock;
@@ -39,9 +34,18 @@ end
   always @(posedge clock) begin
     if (!reset) begin
         $display("=== Cycle %0t ===", $time);
-      $display("  PC = %0h", uut.PC_out);
+      $display("  PC = %0d", uut.PC_out);
       $display(" Instruction in ID stage = %0h", uut.ifid_data_out.instruc);
       $display(" RF[8]=%0h RF[9]=%0h RF[10]=%0h", uut.RF.RF[8], uut.RF.RF[9], uut.RF.RF[10]);
+      
+      $display("id ex rd = %0d, ex mem alu data in = %0h", uut.idex_data_out.rd, uut.exmem_data_in.ALU_result);
+      
+      $display("ex mem rd = %0d, ex mem alu data out = %0h", uut.exmem_data_out.rd, uut.exmem_data_out.ALU_result);
+      
+      $display("mem wb rd = %0d, mem to reg mux out = %0h", uut.memwb_data_out.rd, uut.memtoreg_mux_out);
+               
+               
+               
       $display(" RF[11] = %0h, RF[12] = %0h", uut.RF.RF[11], uut.RF.RF[12]);
       
       $display(" PCSrc = %b, if_id_flush = %b", uut.PCSrc, uut.if_id_flush);
