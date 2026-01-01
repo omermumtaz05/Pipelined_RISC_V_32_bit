@@ -194,36 +194,42 @@ module instruction_memory(
 	instr[30] = 8'h04;
 	instr[31] = 8'h10;
 
+     //sw x9, 100(x0)
+      instr[32] = 8'h23;
+      instr[33] = 8'h22;
+      instr[34] = 8'h90;
+      instr[35] = 8'h06;
+      
 	//addi x10, x0, 50
-	instr[32] = 8'h13;
-	instr[33] = 8'h05;
-	instr[34] = 8'h20;
-	instr[35] = 8'h03;
+      instr[36] = 8'h13;
+      instr[37] = 8'h05;
+      instr[38] = 8'h20;
+      instr[39] = 8'h03;
+
+    //sub x10, x10, x10
+      instr[40] = 8'h33;
+      instr[41] = 8'h05; 
+      instr[42] = 8'ha5;
+      instr[43] = 8'h40;
       
-    //sw x9, 100(x0)
-      instr[36] = 8'h23;
-      instr[37] = 8'h22;
-      instr[38] = 8'h90;
-      instr[39] = 8'h06;
+      //beq x0, x0, -8 
       
-      //beq x0, x0, 4 
-      //changed to be 4 up, tested 8 up bruh!
-      instr[40] = 8'h63;
-      instr[41] = 8'h02; // make 04 for beq x0, x0, 8
-      instr[42] = 8'h00;
-      instr[43] = 8'h00;
+      instr[44] = 8'he3;
+      instr[45] = 8'h0c; 
+      instr[46] = 8'h00;
+      instr[47] = 8'hfe;
       
       //addi x11, x0, 256
-      instr[44] = 8'h93;
-      instr[45] = 8'h05;
-      instr[46] = 8'h00;
-      instr[47] = 8'h10;
-      
-      //addi x12, x0, 256
-      instr[48] = 8'h13;
-      instr[49] = 8'h06;
+      instr[48] = 8'h93;
+      instr[49] = 8'h05;
       instr[50] = 8'h00;
       instr[51] = 8'h10;
+      
+      //addi x12, x0, 256
+      instr[52] = 8'h13;
+      instr[53] = 8'h06;
+      instr[54] = 8'h00;
+      instr[55] = 8'h10;
       
     end
   
