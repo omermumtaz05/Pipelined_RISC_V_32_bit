@@ -1,6 +1,7 @@
 // Code your design here
 // Code your design here
 // Code your design here
+// Code your design here
 
 package cpu_pkg;
 
@@ -208,7 +209,25 @@ module instruction_memory(
       instr[37] = 8'h22;
       instr[38] = 8'h90;
       instr[39] = 8'h06;
-	   
+      
+      //beq x0, x0, 8
+      instr[40] = 8'h63;
+      instr[41] = 8'h04;
+      instr[42] = 8'h00;
+      instr[43] = 8'h00;
+      
+      //addi x11, x0, 256
+      instr[44] = 8'h93;
+      instr[45] = 8'h05;
+      instr[46] = 8'h00;
+      instr[47] = 8'h10;
+      
+      //addi x12, x0, 256
+      instr[48] = 8'h13;
+      instr[49] = 8'h06;
+      instr[50] = 8'h00;
+      instr[51] = 8'h10;
+      
     end
   
     always_comb
