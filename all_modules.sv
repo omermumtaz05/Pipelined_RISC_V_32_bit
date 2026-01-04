@@ -340,6 +340,48 @@ module register(
 
 endmodule
 
+module fwd_c_mux(
+    input [31:0] readRegData1,
+    input [31:0] EX_ALU_out,
+    input [31:0] ex_mem_alu_out,
+    input [31:0] mem_to_reg_out,
+
+    input [1:0] fwd_c_sel,
+
+    output [31:0] fwd_c_out
+
+);
+
+
+  assign fwd_c_out = readRegData1 ? (fwd_c_sel == '0):
+                      EX_ALU_out ? (fwd_c_sel == 2'b01):
+                      ex_mem_alu_out ? (fwd_c_sel == 2'b10):
+                      mem_to_reg_out ? (fwd_c_sel == 2'b11);
+
+
+endmodule
+
+module fwd_d_mux(
+    input [31:0] readRegData2,
+    input [31:0] EX_ALU_out,
+    input [31:0] ex_mem_alu_out,
+    input [31:0] mem_to_reg_out,
+
+    input [1:0] fwd_d_sel,
+
+    output [31:0] fwd_d_out
+
+);
+
+
+	assign fwd_d_out = readRegData2 ? (fwd_d_sel == '0):
+                    EX_ALU_out ? (fwd_d_sel == 2'b01):
+                    ex_mem_alu_out ? (fwd_d_sel == 2'b10):
+                    mem_to_reg_out ? (fwd_d_sel == 2'b11);
+
+
+endmodule
+
 module comparator(
     input logic [31:0] regData1,
     input logic [31:0] regData2,
