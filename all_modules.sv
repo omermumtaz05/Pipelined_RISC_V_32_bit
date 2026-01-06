@@ -243,6 +243,29 @@ module instruction_memory(
       instr[62] = 8'h00;
       instr[63] = 8'h10;
       
+      //lw x14, 100(x0)
+      instr[64] = 8'h03;
+      instr[65] = 8'h27;
+      instr[66] = 8'h40;
+      instr[67] = 8'h06;
+      
+      //beq x9, x14, 8
+      instr[68] = 8'h63;
+      instr[69] = 8'h84;
+      instr[70] = 8'he4;
+      instr[71] = 8'h00;
+      
+      //addi x15, x0, 256
+      instr[72] = 8'h93;
+      instr[73] = 8'h07;
+      instr[74] = 8'h00;
+      instr[75] = 8'h10;
+      
+      //addi x16, x0, 256
+      instr[76] = 8'h13;
+      instr[77] = 8'h08;
+      instr[78] = 8'h00;
+      instr[79] = 8'h10;
     end
   
     always_comb
@@ -636,6 +659,7 @@ module mem_to_reg_mux(
     input logic [31:0] mem_read_data,
     input logic [31:0] ALU_result,
     input logic mem_to_reg,
+  	input logic stall,
 
     output logic [31:0] write_data
 
@@ -652,6 +676,7 @@ import cpu_pkg::*;
 module control(
     input logic [31:0] instruc,
 	input logic equal_to, 
+  	input logic stall,
   
     output id_ex_control_t all_ctrl_out,
   	output logic if_id_flush
@@ -707,6 +732,18 @@ parameter LW = 7'b0000011,
         end
         
 
+      else if((instruc[6:0] == BEQ) && stall)
+        begin
+            all_ctrl_out.EX_ALU_Op = 2'b01;
+            all_ctrl_out.EX_ALU_Src = 1'b0;
+            all_ctrl_out.M_branch = 1'b1;
+            all_ctrl_out.M_mem_read = 1'b0;
+            all_ctrl_out.M_mem_write = 1'b0;
+            all_ctrl_out.WB_reg_write = 1'b0;
+            all_ctrl_out.WB_mem_to_reg = 1'bx;
+            if_id_flush = 1'b0;
+        end
+        
       else if((instruc[6:0] == BEQ) && equal_to)
         begin
             all_ctrl_out.EX_ALU_Op = 2'b01;
@@ -860,7 +897,8 @@ module hazard_detection(
 
     output logic PCWrite,
     output logic if_id_write,
-    output logic control_mux_sig
+    output logic control_mux_sig,
+  	output logic stall
 );
 
 
@@ -879,6 +917,7 @@ begin
             PCWrite = 0;
             if_id_write = 0;
             control_mux_sig = 1; // input 0 into all control signals
+          	stall = 1;
 
         end
 
@@ -889,6 +928,7 @@ begin
             PCWrite = 1;
             if_id_write = 1;
             control_mux_sig = 0; //
+          	stall = 0;
             
         end
 
@@ -1093,6 +1133,7 @@ module top_module(
   	logic if_id_flush;
     logic [4:0] if_id_rs1, if_id_rs2;
     
+  	logic stall;
 
     // IF stage:
     PC_source_mux pc_mux(.branch_address(branch_addrs), .increment_address(inc_addrs),
@@ -1120,7 +1161,9 @@ module top_module(
 
     assign if_id_rs1 = ifid_data_out.instruc[19:15];
     assign if_id_rs2 = ifid_data_out.instruc[24:20];
-
+	
+  wire is_branch = (ifid_data_out.instruc[6:0] == 7'b1100011);
+  
     hazard_detection hzd_dtc_unit(
     .id_ex_mem_read(idex_control_out.M_mem_read),
       .ex_mem_mem_read(exmem_control_out.M_mem_read),
@@ -1129,7 +1172,8 @@ module top_module(
       .ex_mem_rd(exmem_data_out.rd),
     .if_id_rs1(if_id_rs1),
     .if_id_rs2(if_id_rs2),
-     .branch(ctrl_unit_out.M_branch),
+      .branch(ctrl_unit_out.M_branch),
+      .stall(stall),
       
     .PCWrite(PCWrite),
     .if_id_write(if_id_write),
@@ -1139,7 +1183,7 @@ module top_module(
 
     imm_gen imm_gen(.inst(ifid_data_out.instruc), .imm(idex_data_in.imm));
 
-  control control_unit(.instruc(ifid_data_out.instruc), .equal_to(equal_to), .all_ctrl_out(ctrl_unit_out), .if_id_flush(if_id_flush));
+  control control_unit(.instruc(ifid_data_out.instruc), .equal_to(equal_to), .stall(stall), .all_ctrl_out(ctrl_unit_out), .if_id_flush(if_id_flush));
 
     control_mux ctrl_mux(
     .all_control_in(ctrl_unit_out),
@@ -1214,7 +1258,7 @@ module top_module(
       
     );
   
-  	assign PCSrc = ctrl_unit_out.M_branch && equal_to;
+  	assign PCSrc = ctrl_unit_out.M_branch && equal_to && !stall;
   
     assign idex_data_in.pc_address = ifid_data_out.pc_address;
 
