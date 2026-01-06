@@ -362,16 +362,16 @@ module branch_fwd_unit(
   always_comb 
       begin 
           //id ex fwd
-          if(id_ex_rd == if_id_rs1 && id_ex_regWrite && control_branch)
+          if((id_ex_rd != 0) && id_ex_rd == if_id_rs1 && id_ex_regWrite && control_branch)
               fwd_c_sel = 2'b01;
 
           // ex mem fwd
-          else if(ex_mem_rd == if_id_rs1 && ex_mem_regWrite && control_branch 
+          else if((ex_mem_rd != 0) && ex_mem_rd == if_id_rs1 && ex_mem_regWrite && control_branch 
                   && !(id_ex_rd == if_id_rs1 && id_ex_regWrite))
               fwd_c_sel = 2'b10;
 
           //mem wb fwd
-          else if(mem_wb_rd == if_id_rs1 && mem_wb_regWrite && control_branch 
+          else if((mem_wb_rd != 0) && mem_wb_rd == if_id_rs1 && mem_wb_regWrite && control_branch 
                   && !(id_ex_rd == if_id_rs1 && id_ex_regWrite) // make sure earlier stage not writing to same reg
                   && !(ex_mem_rd == if_id_rs1 && ex_mem_regWrite)) // make sure earlier stage not writing to same reg
               fwd_c_sel = 2'b11;
@@ -386,16 +386,16 @@ module branch_fwd_unit(
   always_comb 
       begin 
           //id ex fwd
-          if(id_ex_rd == if_id_rs2 && id_ex_regWrite && control_branch)
+          if((id_ex_rd != 0) && id_ex_rd == if_id_rs2 && id_ex_regWrite && control_branch)
               fwd_d_sel = 2'b01;
   
           // ex mem fwd
-          else if(ex_mem_rd == if_id_rs2 && ex_mem_regWrite && control_branch 
+          else if((ex_mem_rd != 0) && ex_mem_rd == if_id_rs2 && ex_mem_regWrite && control_branch 
                   && !(id_ex_rd == if_id_rs2 && id_ex_regWrite))
               fwd_d_sel = 2'b10;
 
           //mem wb fwd
-          else if(mem_wb_rd == if_id_rs2 && mem_wb_regWrite && control_branch 
+          else if((mem_wb_rd != 0) && (mem_wb_rd == if_id_rs2) && mem_wb_regWrite && control_branch 
                   && !(id_ex_rd == if_id_rs2 && id_ex_regWrite) // make sure earlier stage not writing to same reg
                   && !(ex_mem_rd == if_id_rs2 && ex_mem_regWrite)) // make sure earlier stage not writing to same reg
               fwd_d_sel = 2'b11;
