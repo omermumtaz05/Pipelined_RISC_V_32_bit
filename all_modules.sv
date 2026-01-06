@@ -340,6 +340,75 @@ module register(
 
 endmodule
 
+module branch_fwd_unit(
+    input logic [5:0] if_id_rs1,
+    input logic [5:0] if_id_rs2,
+
+    input logic [5:0] id_ex_rd,
+    input logic [5:0] ex_mem_rd,
+    input logic [5:0] mem_wb_rd,
+
+    input logic control_branch,
+
+    input logic id_ex_regWrite,
+    input logic ex_mem_regWrite,
+    input logic mem_wb_regWrite,
+
+    output logic [1:0] fwd_c_sel,
+    output logic [1:0] fwd_d_sel
+  );
+
+  //fwd C
+  always_comb 
+      begin 
+          //id ex fwd
+          if(id_ex_rd == if_id_rs1 && id_ex_regWrite && control_branch)
+              fwd_c_sel = 2'b01;
+
+          // ex mem fwd
+          else if(ex_mem_rd == if_id_rs1 && ex_mem_regWrite && control_branch 
+                  && !(id_ex_rd == if_id_rs1 && id_ex_regWrite))
+              fwd_c_sel = 2'b10;
+
+          //mem wb fwd
+          else if(mem_wb_rd == if_id_rs1 && mem_wb_regWrite && control_branch 
+                  && !(id_ex_rd == if_id_rs1 && id_ex_regWrite) // make sure earlier stage not writing to same reg
+                  && !(ex_mem_rd == if_id_rs1 && ex_mem_regWrite)) // make sure earlier stage not writing to same reg
+              fwd_c_sel = 2'b11;
+
+          //no fwd!
+          else
+              fwd_c_sel = '0;
+
+      end
+
+  //fwd D
+  always_comb 
+      begin 
+          //id ex fwd
+          if(id_ex_rd == if_id_rs2 && id_ex_regWrite && control_branch)
+              fwd_d_sel = 2'b01;
+  
+          // ex mem fwd
+          else if(ex_mem_rd == if_id_rs2 && ex_mem_regWrite && control_branch 
+                  && !(id_ex_rd == if_id_rs2 && id_ex_regWrite))
+              fwd_d_sel = 2'b10;
+
+          //mem wb fwd
+          else if(mem_wb_rd == if_id_rs2 && mem_wb_regWrite && control_branch 
+                  && !(id_ex_rd == if_id_rs2 && id_ex_regWrite) // make sure earlier stage not writing to same reg
+                  && !(ex_mem_rd == if_id_rs2 && ex_mem_regWrite)) // make sure earlier stage not writing to same reg
+              fwd_d_sel = 2'b11;
+
+          //no fwd!
+          else
+              fwd_d_sel = '0;
+
+      end
+
+
+endmodule
+
 module fwd_c_mux(
     input [31:0] readRegData1,
     input [31:0] EX_ALU_out,
@@ -353,10 +422,10 @@ module fwd_c_mux(
 );
 
 
-  assign fwd_c_out = readRegData1 ? (fwd_c_sel == '0):
-                      EX_ALU_out ? (fwd_c_sel == 2'b01):
+  assign fwd_c_out =  EX_ALU_out ? (fwd_c_sel == 2'b01):
                       ex_mem_alu_out ? (fwd_c_sel == 2'b10):
-                      mem_to_reg_out ? (fwd_c_sel == 2'b11);
+                      mem_to_reg_out ? (fwd_c_sel == 2'b11):
+                      readRegData1;
 
 
 endmodule
@@ -374,10 +443,10 @@ module fwd_d_mux(
 );
 
 
-	assign fwd_d_out = readRegData2 ? (fwd_d_sel == '0):
-                    EX_ALU_out ? (fwd_d_sel == 2'b01):
-                    ex_mem_alu_out ? (fwd_d_sel == 2'b10):
-                    mem_to_reg_out ? (fwd_d_sel == 2'b11);
+	assign fwd_d_out = EX_ALU_out ? (fwd_d_sel == 2'b01):
+                    	ex_mem_alu_out ? (fwd_d_sel == 2'b10):
+      mem_to_reg_out ? (fwd_d_sel == 2'b11):
+  readRegData2;
 
 
 endmodule
@@ -984,10 +1053,13 @@ module top_module(
 
     // fwd sels
     logic [1:0] fwd_a_sel, fwd_b_sel;
+    logic [1:0] fwd_c_sel, fwd_d_sel;
 
     //alu inps
     logic [31:0] ALU_inp_1, ALU_inp_2;
     logic [31:0] fwd_b_out;
+
+    logic [31:0] fwd_c_out, fwd_d_out;
 
 
     //alu ctrl and zero
@@ -1066,9 +1138,55 @@ module top_module(
        .branch_address(branch_addrs)
       );
 
+    branch_fwd_unit branch_fwd(
+    .if_id_rs1(idex_data_in.rs1),
+    .if_id_rs2(idex_data_in.rs2),
+
+    .id_ex_rd(idex_data_out.rd),
+    .ex_mem_rd(exmem_data_out.rd),
+    .mem_wb_rd(memwb_data_out.rd),
+
+    .control_branch(ctrl_unit_out.M_branch),
+
+    .id_ex_regWrite(idex_control_out.WB_reg_write),
+    .ex_mem_regWrite(exmem_control_out.WB_reg_write),
+    .mem_wb_regWrite(memwb_control_out.WB_reg_write),
+
+    .fwd_c_sel(fwd_c_sel),
+    .fwd_d_sel(fwd_d_sel)
+
+    );
+    fwd_c_mux fwd_c_mux(
+      .readRegData1(idex_data_in.reg_read_data1),
+      .EX_ALU_out(exmem_data_in.ALU_result),
+
+      .ex_mem_alu_out(exmem_data_out.ALU_result),
+      .mem_to_reg_out(memtoreg_mux_out),
+
+      .fwd_c_sel(fwd_c_sel),
+
+      .fwd_c_out(fwd_c_out)
+
+
+    );
+
+    fwd_d_mux fwd_d_mux(
+      .readRegData2(idex_data_in.reg_read_data2),
+      .EX_ALU_out(exmem_data_in.ALU_result),
+
+      .ex_mem_alu_out(exmem_data_out.ALU_result),
+      .mem_to_reg_out(memtoreg_mux_out),
+
+      .fwd_d_sel(fwd_d_sel),
+
+      .fwd_d_out(fwd_d_out)
+
+
+    );
+
     comparator comp(
-      .regData1(idex_data_in.reg_read_data1),
-      .regData2(idex_data_in.reg_read_data2),
+      .regData1(fwd_c_out),
+      .regData2(fwd_d_out),
       .reset(reset),
       .clock(clock),
       .equal_to(equal_to)
