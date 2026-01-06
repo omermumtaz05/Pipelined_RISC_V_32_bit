@@ -850,10 +850,13 @@ endmodule
 
 module hazard_detection(
     input logic id_ex_mem_read,
+  	input logic ex_mem_mem_read,
     input logic [4:0] id_ex_rd,
     input logic [4:0] if_id_rs1,
     input logic [4:0] if_id_rs2,
-
+  	
+    input logic branch,
+    input logic [4:0] ex_mem_rd, 
 
     output logic PCWrite,
     output logic if_id_write,
@@ -864,9 +867,12 @@ module hazard_detection(
 always_comb
 begin
 
-    if(id_ex_mem_read &&
+  if((id_ex_mem_read &&
       ((id_ex_rd == if_id_rs1) || 
        (id_ex_rd ==  if_id_rs2)))
+    
+     	|| (branch && ex_mem_mem_read 
+       	&& ((ex_mem_rd == if_id_rs1) || (ex_mem_rd == if_id_rs2))))
 
         begin
 
@@ -1117,11 +1123,14 @@ module top_module(
 
     hazard_detection hzd_dtc_unit(
     .id_ex_mem_read(idex_control_out.M_mem_read),
+      .ex_mem_mem_read(exmem_control_out.M_mem_read),
+      
     .id_ex_rd(idex_data_out.rd),
+      .ex_mem_rd(exmem_data_out.rd),
     .if_id_rs1(if_id_rs1),
     .if_id_rs2(if_id_rs2),
-
-
+     .branch(ctrl_unit_out.M_branch),
+      
     .PCWrite(PCWrite),
     .if_id_write(if_id_write),
     .control_mux_sig(control_mux)
