@@ -30,7 +30,7 @@ top_module uut(
     end
 end
   */
-  /*
+
   always @(posedge clock) begin
     if (!reset) begin
         $display("=== Cycle %0t ===", $time);
@@ -51,36 +51,17 @@ end
       $display("Equal to = %b", uut.equal_to);
       $display(" read data reg 1 = %0d", uut.idex_data_in.reg_read_data1);
       $display(" read data reg 2 = %0d", uut.idex_data_in.reg_read_data2);
+      $display(" fwd_c_out = %0d", uut.fwd_c_out);
+      $display("fwd_d_out = %0d", uut.fwd_d_out);
+      
       $display("DM[100]=%0h DM[101]=%0h DM[102]=%0h DM[103]=%0h ",
                 uut.DM.data[100], uut.DM.data[101], uut.DM.data[102], uut.DM.data[103]);
       
         $display("");
     end
-end*/
-  
-    always @(posedge clock) begin
-    if (!reset) begin
-        $display("=== Cycle %0t ===", $time);
-      $display("  PC = %0d", uut.PC_out);
-      $display(" Instruction in ID stage = %0h", uut.ifid_data_out.instruc);
-      
-      $display("id ex rd = %0d, ex mem alu data in = %0h, id ex reg write = %0b, branch = %0b", uut.idex_data_out.rd, uut.exmem_data_in.ALU_result, uut.idex_control_out.WB_reg_write, uut.ctrl_unit_out.M_branch);
-      
-      $display("ex mem rd = %0d, ex mem alu data out = %0h, ex mem reg write = %0b", uut.exmem_data_out.rd, uut.exmem_data_out.ALU_result, uut.exmem_control_out.WB_reg_write);
-      
-      $display("mem wb rd = %0d, mem to reg mux out = %0h, mem wb reg write = %0b", uut.memwb_data_out.rd, uut.memtoreg_mux_out, uut.memwb_control_out.WB_reg_write);
-               
-       $display(" RF[8]=%0h RF[9]=%0h RF[10]=%0h", uut.RF.RF[8], uut.RF.RF[9], uut.RF.RF[10]);  
-      
-      $display(" PCSrc = %b, if_id_flush = %b", uut.PCSrc, uut.if_id_flush);
-      $display("Equal to = %b", uut.equal_to);
-      $display(" read data reg 1 = %0d", uut.idex_data_in.reg_read_data1);
-      $display(" read data reg 2 = %0d", uut.idex_data_in.reg_read_data2);
-      
-        $display("");
-    end
 end
   
+    
   
   // Test sequence
   initial begin
