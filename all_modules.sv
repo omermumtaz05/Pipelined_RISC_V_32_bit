@@ -212,24 +212,36 @@ module instruction_memory(
       instr[42] = 8'ha5;
       instr[43] = 8'h40;
       
+      // nops
+      
+      instr[44] = '0;
+      instr[45] = '0; 
+      instr[46] = '0;
+      instr[47] = '0;
+      
+      instr[48] = 8'h00;
+      instr[49] = 8'h00; 
+      instr[50] = 8'h00;
+      instr[51] = 8'h00;
+      
       //beq x10, x0, 8 
       
-		instr[44] = 8'h63;
-		instr[45] = 8'h04; 
-		instr[46] = 8'h05;
-		instr[47] = 8'h00;
+      instr[52] = 8'h63;
+      instr[53] = 8'h04; 
+      instr[54] = 8'h05;
+      instr[55] = 8'h00;
       
       //addi x11, x0, 256
-      instr[48] = 8'h93;
-      instr[49] = 8'h05;
-      instr[50] = 8'h00;
-      instr[51] = 8'h10;
+      instr[56] = 8'h93;
+      instr[57] = 8'h05;
+      instr[58] = 8'h00;
+      instr[59] = 8'h10;
       
       //addi x12, x0, 256
-      instr[52] = 8'h13;
-      instr[53] = 8'h06;
-      instr[54] = 8'h00;
-      instr[55] = 8'h10;
+      instr[60] = 8'h13;
+      instr[61] = 8'h06;
+      instr[62] = 8'h00;
+      instr[63] = 8'h10;
       
     end
   
