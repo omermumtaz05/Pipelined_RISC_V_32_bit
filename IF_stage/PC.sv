@@ -1,4 +1,3 @@
-// Code your design here
 module ProgramCounter(
   input logic clk,
   input logic reset,
@@ -7,7 +6,6 @@ module ProgramCounter(
   input logic [31:0] next_pc,
 
   output logic [31:0] pc_out);
-
 
 
   always_ff @ (posedge clk)
