@@ -55,29 +55,37 @@ endmodule
 
 module hazard_detection(
     input logic id_ex_mem_read,
+  	input logic ex_mem_mem_read,
     input logic [4:0] id_ex_rd,
     input logic [4:0] if_id_rs1,
     input logic [4:0] if_id_rs2,
-
+  	
+    input logic branch,
+    input logic [4:0] ex_mem_rd, 
 
     output logic PCWrite,
     output logic if_id_write,
-    output logic control_mux_sig
+    output logic control_mux_sig,
+  	output logic stall
 );
 
 
 always_comb
 begin
 
-    if(id_ex_mem_read &&
+  if((id_ex_mem_read &&
       ((id_ex_rd == if_id_rs1) || 
        (id_ex_rd ==  if_id_rs2)))
+    
+     	|| (branch && ex_mem_mem_read 
+       	&& ((ex_mem_rd == if_id_rs1) || (ex_mem_rd == if_id_rs2))))
 
         begin
 
             PCWrite = 0;
             if_id_write = 0;
             control_mux_sig = 1; // input 0 into all control signals
+          	stall = 1;
 
         end
 
@@ -88,6 +96,7 @@ begin
             PCWrite = 1;
             if_id_write = 1;
             control_mux_sig = 0; //
+          	stall = 0;
             
         end
 
