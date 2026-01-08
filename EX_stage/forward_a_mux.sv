@@ -13,6 +13,4 @@ module forward_a_mux(
                        (forward_a == 2'b10) ? ex_mem_out:
                        read_data_1;
 
-
-
 endmodule
