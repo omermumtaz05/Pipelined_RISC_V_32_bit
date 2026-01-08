@@ -33,10 +33,14 @@ module top_module(
 
     // fwd sels
     logic [1:0] fwd_a_sel, fwd_b_sel;
+    logic [1:0] fwd_c_sel, fwd_d_sel;
 
     //alu inps
     logic [31:0] ALU_inp_1, ALU_inp_2;
     logic [31:0] fwd_b_out;
+
+    logic [31:0] fwd_c_out, fwd_d_out;
+
 
     //alu ctrl and zero
     logic [3:0] ALU_control;
@@ -45,9 +49,13 @@ module top_module(
     logic [31:0] inc_addrs, branch_addrs, PC_in, PC_out;
     logic [31:0] memtoreg_mux_out;
     logic [31:0] imm;
-
+  
+	//branch
+  	logic equal_to;
+  	logic if_id_flush;
     logic [4:0] if_id_rs1, if_id_rs2;
     
+  	logic stall;
 
     // IF stage:
     PC_source_mux pc_mux(.branch_address(branch_addrs), .increment_address(inc_addrs),
@@ -63,7 +71,7 @@ module top_module(
     instruction_memory IM( .address(PC_out), .read_instr(ifid_data_in.instruc));
     assign ifid_data_in.pc_address = PC_out;
 
-    IF_ID if_id(.clock(clock), .reset(reset), .if_id_write(if_id_write),
+  IF_ID if_id(.clock(clock), .reset(reset), .if_id_write(if_id_write), .if_id_flush(if_id_flush),
                 .data_in(ifid_data_in), .data_out(ifid_data_out));
 
     // ID stage:
@@ -75,14 +83,20 @@ module top_module(
 
     assign if_id_rs1 = ifid_data_out.instruc[19:15];
     assign if_id_rs2 = ifid_data_out.instruc[24:20];
-
+	
+  wire is_branch = (ifid_data_out.instruc[6:0] == 7'b1100011);
+  
     hazard_detection hzd_dtc_unit(
     .id_ex_mem_read(idex_control_out.M_mem_read),
+      .ex_mem_mem_read(exmem_control_out.M_mem_read),
+      
     .id_ex_rd(idex_data_out.rd),
+      .ex_mem_rd(exmem_data_out.rd),
     .if_id_rs1(if_id_rs1),
     .if_id_rs2(if_id_rs2),
-
-
+      .branch(ctrl_unit_out.M_branch),
+      .stall(stall),
+      
     .PCWrite(PCWrite),
     .if_id_write(if_id_write),
     .control_mux_sig(control_mux)
@@ -91,7 +105,7 @@ module top_module(
 
     imm_gen imm_gen(.inst(ifid_data_out.instruc), .imm(idex_data_in.imm));
 
-    control control_unit(.instruc(ifid_data_out.instruc), .all_ctrl_out(ctrl_unit_out));
+  control control_unit(.instruc(ifid_data_out.instruc), .equal_to(equal_to), .stall(stall), .all_ctrl_out(ctrl_unit_out), .if_id_flush(if_id_flush));
 
     control_mux ctrl_mux(
     .all_control_in(ctrl_unit_out),
@@ -100,7 +114,74 @@ module top_module(
 
     .ctrl_mux_out(idex_control_in)
 
-);
+	);
+  	
+    // assign PCSrc = exmem_control_out.M_branch & exmem_control_out.ALU_zero;
+  
+     branch_pc_adder branch_addr(
+       .PC_address(ifid_data_out.pc_address),
+       .imm(idex_data_in.imm),
+
+       .branch_address(branch_addrs)
+      );
+
+    branch_fwd_unit branch_fwd(
+    .if_id_rs1(idex_data_in.rs1),
+    .if_id_rs2(idex_data_in.rs2),
+
+    .id_ex_rd(idex_data_out.rd),
+    .ex_mem_rd(exmem_data_out.rd),
+    .mem_wb_rd(memwb_data_out.rd),
+
+    .control_branch(ctrl_unit_out.M_branch),
+
+    .id_ex_regWrite(idex_control_out.WB_reg_write),
+    .ex_mem_regWrite(exmem_control_out.WB_reg_write),
+    .mem_wb_regWrite(memwb_control_out.WB_reg_write),
+
+    .fwd_c_sel(fwd_c_sel),
+    .fwd_d_sel(fwd_d_sel)
+
+    );
+    fwd_c_mux fwd_c_mux(
+      .readRegData1(idex_data_in.reg_read_data1),
+      .EX_ALU_out(exmem_data_in.ALU_result),
+
+      .ex_mem_alu_out(exmem_data_out.ALU_result),
+      .mem_to_reg_out(memtoreg_mux_out),
+
+      .fwd_c_sel(fwd_c_sel),
+
+      .fwd_c_out(fwd_c_out)
+
+
+    );
+
+    fwd_d_mux fwd_d_mux(
+      .readRegData2(idex_data_in.reg_read_data2),
+      .EX_ALU_out(exmem_data_in.ALU_result),
+
+      .ex_mem_alu_out(exmem_data_out.ALU_result),
+      .mem_to_reg_out(memtoreg_mux_out),
+
+      .fwd_d_sel(fwd_d_sel),
+
+      .fwd_d_out(fwd_d_out)
+
+
+    );
+
+    comparator comp(
+      .regData1(fwd_c_out),
+      .regData2(fwd_d_out),
+      .reset(reset),
+      .clock(clock),
+      .equal_to(equal_to)
+      
+    );
+  
+  	assign PCSrc = ctrl_unit_out.M_branch && equal_to && !stall;
+  
     assign idex_data_in.pc_address = ifid_data_out.pc_address;
 
     assign idex_data_in.funct_inst_bits = {ifid_data_out.instruc[30], ifid_data_out.instruc[14:12]};
@@ -143,13 +224,6 @@ module top_module(
     .ALU_inp2(ALU_inp_2)
     );
 
-
-    branch_pc_adder branch_addr(
-    .PC_address(idex_data_out.pc_address),
-    .imm(idex_data_out.imm),
-
-    .branch_address(exmem_data_in.branch_adder_sum)
-    );
 
     forwarding_unit fwd_unit(
     .id_ex_rs1(idex_data_out.rs1),
@@ -215,8 +289,6 @@ module top_module(
     .memWrite(exmem_control_out.M_mem_write),
     .memData(memwb_data_in.read_data)
     );
-
-    assign PCSrc = exmem_control_out.M_branch & exmem_control_out.ALU_zero;
 
     assign memwb_data_in.ALU_result = exmem_data_out.ALU_result;
     assign memwb_data_in.rd = exmem_data_out.rd;
