@@ -33,7 +33,7 @@ module PC_source_mux(
 
 );
 
-    assign PC_input = ~PCSrc ? increment_address : branch_address;
+    assign PC_input = PCSrc ?  branch_address : increment_address;
        
 
 endmodule
@@ -106,12 +106,78 @@ module instruction_memory(
 	instr[30] = 8'h04;
 	instr[31] = 8'h10;
 
+     //sw x9, 100(x0)
+      instr[32] = 8'h23;
+      instr[33] = 8'h22;
+      instr[34] = 8'h90;
+      instr[35] = 8'h06;
+      
 	//addi x10, x0, 50
-	instr[32] = 8'h13;
-	instr[33] = 8'h05;
-	instr[34] = 8'h20;
-	instr[35] = 8'h03;
-	   
+      instr[36] = 8'h13;
+      instr[37] = 8'h05;
+      instr[38] = 8'h20;
+      instr[39] = 8'h03;
+
+    //sub x10, x10, x10
+      instr[40] = 8'h33;
+      instr[41] = 8'h05; 
+      instr[42] = 8'ha5;
+      instr[43] = 8'h40;
+      
+      // nops
+      
+      instr[44] = '0;
+      instr[45] = '0; 
+      instr[46] = '0;
+      instr[47] = '0;
+      
+      instr[48] = 8'h00;
+      instr[49] = 8'h00; 
+      instr[50] = 8'h00;
+      instr[51] = 8'h00;
+      
+      //beq x10, x0, 8 
+      
+      instr[52] = 8'h63;
+      instr[53] = 8'h04; 
+      instr[54] = 8'h05;
+      instr[55] = 8'h00;
+      
+      //addi x11, x0, 256
+      instr[56] = 8'h93;
+      instr[57] = 8'h05;
+      instr[58] = 8'h00;
+      instr[59] = 8'h10;
+      
+      //addi x12, x0, 256
+      instr[60] = 8'h13;
+      instr[61] = 8'h06;
+      instr[62] = 8'h00;
+      instr[63] = 8'h10;
+      
+      //lw x14, 100(x0)
+      instr[64] = 8'h03;
+      instr[65] = 8'h27;
+      instr[66] = 8'h40;
+      instr[67] = 8'h06;
+      
+      //beq x9, x14, 8
+      instr[68] = 8'h63;
+      instr[69] = 8'h84;
+      instr[70] = 8'he4;
+      instr[71] = 8'h00;
+      
+      //addi x15, x0, 256
+      instr[72] = 8'h93;
+      instr[73] = 8'h07;
+      instr[74] = 8'h00;
+      instr[75] = 8'h10;
+      
+      //addi x16, x0, 256
+      instr[76] = 8'h13;
+      instr[77] = 8'h08;
+      instr[78] = 8'h00;
+      instr[79] = 8'h10;
     end
   
     always_comb
@@ -184,7 +250,7 @@ module register(
     input logic regWrite,
 
     output logic [31:0] readData1,
-    output logic [31:0] readData2
+  output logic [31:0] readData2
 );
 
     logic [31:0] RF [31:0]; // 32 registers each carrying 32 bits of data each
@@ -212,9 +278,148 @@ module register(
             if(readReg2 == writeReg)
                 readData2 = writeData;
         end
+  
+  	/*always_comb
+      begin
+        if(
+      end
+  */
 
 endmodule
 
+module branch_fwd_unit(
+    input logic [5:0] if_id_rs1,
+    input logic [5:0] if_id_rs2,
+
+    input logic [5:0] id_ex_rd,
+    input logic [5:0] ex_mem_rd,
+    input logic [5:0] mem_wb_rd,
+
+    input logic control_branch,
+
+    input logic id_ex_regWrite,
+    input logic ex_mem_regWrite,
+    input logic mem_wb_regWrite,
+
+    output logic [1:0] fwd_c_sel,
+    output logic [1:0] fwd_d_sel
+  );
+
+  //fwd C
+  always_comb 
+      begin 
+          //id ex fwd
+          if((id_ex_rd != 0) && id_ex_rd == if_id_rs1 && id_ex_regWrite && control_branch)
+              fwd_c_sel = 2'b01;
+
+          // ex mem fwd
+          else if((ex_mem_rd != 0) && ex_mem_rd == if_id_rs1 && ex_mem_regWrite && control_branch 
+                  && !(id_ex_rd == if_id_rs1 && id_ex_regWrite))
+              fwd_c_sel = 2'b10;
+
+          //mem wb fwd
+          else if((mem_wb_rd != 0) && mem_wb_rd == if_id_rs1 && mem_wb_regWrite && control_branch 
+                  && !(id_ex_rd == if_id_rs1 && id_ex_regWrite) // make sure earlier stage not writing to same reg
+                  && !(ex_mem_rd == if_id_rs1 && ex_mem_regWrite)) // make sure earlier stage not writing to same reg
+              fwd_c_sel = 2'b11;
+
+          //no fwd!
+          else
+              fwd_c_sel = '0;
+
+      end
+
+  //fwd D
+  always_comb 
+      begin 
+          //id ex fwd
+          if((id_ex_rd != 0) && id_ex_rd == if_id_rs2 && id_ex_regWrite && control_branch)
+              fwd_d_sel = 2'b01;
+  
+          // ex mem fwd
+          else if((ex_mem_rd != 0) && ex_mem_rd == if_id_rs2 && ex_mem_regWrite && control_branch 
+                  && !(id_ex_rd == if_id_rs2 && id_ex_regWrite))
+              fwd_d_sel = 2'b10;
+
+          //mem wb fwd
+          else if((mem_wb_rd != 0) && (mem_wb_rd == if_id_rs2) && mem_wb_regWrite && control_branch 
+                  && !(id_ex_rd == if_id_rs2 && id_ex_regWrite) // make sure earlier stage not writing to same reg
+                  && !(ex_mem_rd == if_id_rs2 && ex_mem_regWrite)) // make sure earlier stage not writing to same reg
+              fwd_d_sel = 2'b11;
+
+          //no fwd!
+          else
+              fwd_d_sel = '0;
+
+      end
+
+
+endmodule
+
+module fwd_c_mux(
+    input [31:0] readRegData1,
+    input [31:0] EX_ALU_out,
+    input [31:0] ex_mem_alu_out,
+    input [31:0] mem_to_reg_out,
+
+    input [1:0] fwd_c_sel,
+
+    output [31:0] fwd_c_out
+
+);
+
+
+  assign fwd_c_out =  EX_ALU_out ? (fwd_c_sel == 2'b01):
+                      ex_mem_alu_out ? (fwd_c_sel == 2'b10):
+                      mem_to_reg_out ? (fwd_c_sel == 2'b11):
+                      readRegData1;
+
+
+endmodule
+
+module fwd_d_mux(
+    input [31:0] readRegData2,
+    input [31:0] EX_ALU_out,
+    input [31:0] ex_mem_alu_out,
+    input [31:0] mem_to_reg_out,
+
+    input [1:0] fwd_d_sel,
+
+    output [31:0] fwd_d_out
+
+);
+
+
+	assign fwd_d_out = EX_ALU_out ? (fwd_d_sel == 2'b01):
+                    	ex_mem_alu_out ? (fwd_d_sel == 2'b10):
+      mem_to_reg_out ? (fwd_d_sel == 2'b11):
+  readRegData2;
+
+
+endmodule
+
+module comparator(
+    input logic [31:0] regData1,
+    input logic [31:0] regData2,
+	input reset,
+  	input clock,
+  
+    output logic equal_to
+
+);
+
+  always_comb// @ (posedge clock)
+    begin
+      if(reset || (regData1 != regData2))
+        equal_to <= '0;
+      
+      else if(regData1 == regData2)
+      
+        	equal_to <= 1'b1;
+    end
+
+
+endmodule
 
 // EX stage:
 
