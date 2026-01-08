@@ -12,6 +12,7 @@ typedef struct packed {
 // id ex control and data
 
 typedef struct packed {
+  
     // WB stage control
     reg WB_reg_write;
     reg WB_mem_to_reg;
