@@ -1,5 +1,6 @@
 import cpu_pkg::*;
 
+
 module EX_MEM(
     
     input logic clock,
@@ -36,6 +37,3 @@ module EX_MEM(
 
 
 endmodule
-
-
-//Verify!!!
