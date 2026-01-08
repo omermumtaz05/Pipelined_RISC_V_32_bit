@@ -1,7 +1,6 @@
 module data_memory(
     input logic clk,
-    input logic  reset,
-    
+    input logic reset,
     input logic [31:0] address,
     input logic [31:0] writeData,
     input logic memRead,
@@ -11,26 +10,32 @@ module data_memory(
 );
 
     logic [7:0] data [127:0];
-
+ 
     integer i;
+
     always_ff @ (posedge clk)
+   begin
+    if(reset)
     begin
-       if(reset)
-       begin
-         	
-         	for(i = 0; i < 127; i = i + 1)
-                	data[i] <= '0;
+        
+	data[20] = 8'h6D;
+	data[21] = '0;
+	data[22] = '0;
+	data[23] = '0;
 
-       end
-
-       else if(memWrite)
+	data[40] = 8'hFF;
+	data[41] = 8'h00;
+	data[42] = 8'hFF;
+	data[43] = 8'h00;
+    end
+    else if(memWrite)
        begin
             data[address] <= writeData[7:0];
             data[address + 1] <= writeData[15:8];
             data[address + 2] <= writeData[23:16];
             data[address + 3] <= writeData[31:24];
        end
-    end
+     end
 
     always_comb
         if(memRead)
