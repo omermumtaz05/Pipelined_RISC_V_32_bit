@@ -13,3 +13,6 @@ Verification was done for the above features using testbenches in Icarus Verilog
 ## Block Diagram:
 <img width="1193" height="918" alt="Screenshot 2026-01-10 at 8 16 21 PM" src="https://github.com/user-attachments/assets/b967f33c-4de1-4e77-a7cc-83f21baaf679" />
 
+## Structure:
+- '\rtl' - Source modules, both individual and combined based on pipeline stage
+- '\tb' - Testbenches for individual modules and full CPU verification
