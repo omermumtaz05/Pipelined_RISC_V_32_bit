@@ -1,4 +1,4 @@
-# Pipelined RISC V 32 bit
+# Pipelined RISC-V 32-bit
 This repository contains the code for a pipelined RISC-V 32-bit implementation in SystemVerilog. 
 
 ## The CPU's features include
