@@ -10,7 +10,7 @@ This repository contains the code for a pipelined RISC-V 32-bit implementation i
 Verification was done for the above features using testbenches in Icarus Verilog and ModelSim, displaying register, memory, and control signal values each clock cycle.
 
 ## Block Diagram:
-![IMG_64F9B2892418-1](https://github.com/user-attachments/assets/436312b7-bcf8-4110-8e56-1d22a02929f7)
+![IMG_64F9B2892418-1](https://github.com/user-attachments/assets/f6669a4f-f7ca-4252-af61-3c009bdeac15)
 
 ## Structure:
 - `rtl/` - Source modules, both individual and combined based on pipeline stage
