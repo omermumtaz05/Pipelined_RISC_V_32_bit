@@ -1,6 +1,6 @@
 This repository contains the code for a pipelined RISC-V 32-bit implementation in SystemVerilog. 
 
-## The CPU's features include
+## Features:
 - Data forwarding for data hazards including EX/MEM and MEM/WB hazards.
 - Stall insertion for load-use hazards
 - Branch resolution in the ID stage through one instruction flush 
