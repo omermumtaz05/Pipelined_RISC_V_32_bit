@@ -56,7 +56,7 @@ typedef struct packed {
     reg M_mem_write;
 
     reg ALU_zero;
-
+	
 } ex_mem_control_t;
 
 typedef struct packed {
@@ -66,7 +66,8 @@ typedef struct packed {
     reg [31:0] ALU_result;
     reg [31:0] reg_read_data2;
     reg [4:0] rd;
-
+	
+  	//reg stall;
 } ex_mem_data_t;
 
 //mem wb control and data
@@ -74,7 +75,8 @@ typedef struct packed {
     
     reg WB_reg_write;
     reg WB_mem_to_reg;
-
+	reg branch;
+  
 } mem_wb_control_t;
 
 typedef struct packed {
@@ -83,7 +85,7 @@ typedef struct packed {
     reg [31:0] read_data;
     reg [31:0] ALU_result;
     reg [4:0] rd;
-
+	
 } mem_wb_data_t;
 
 
@@ -214,61 +216,50 @@ module instruction_memory(
       instr[41] = 8'h05; 
       instr[42] = 8'ha5;
       instr[43] = 8'h40;
-      
-      // nops
-      
-      instr[44] = '0;
-      instr[45] = '0; 
-      instr[46] = '0;
-      instr[47] = '0;
-      
-      instr[48] = 8'h00;
-      instr[49] = 8'h00; 
-      instr[50] = 8'h00;
-      instr[51] = 8'h00;
+     
       
       //beq x10, x0, 8 
       
-      instr[52] = 8'h63;
-      instr[53] = 8'h04; 
-      instr[54] = 8'h05;
-      instr[55] = 8'h00;
+      instr[44] = 8'h63;
+      instr[45] = 8'h04; 
+      instr[46] = 8'h05;
+      instr[47] = 8'h00;
       
       //addi x11, x0, 256
-      instr[56] = 8'h93;
-      instr[57] = 8'h05;
-      instr[58] = 8'h00;
-      instr[59] = 8'h10;
+      instr[48] = 8'h93;
+      instr[49] = 8'h05;
+      instr[50] = 8'h00;
+      instr[51] = 8'h10;
       
       //addi x12, x0, 256
-      instr[60] = 8'h13;
-      instr[61] = 8'h06;
-      instr[62] = 8'h00;
-      instr[63] = 8'h10;
+      instr[52] = 8'h13;
+      instr[53] = 8'h06;
+      instr[54] = 8'h00;
+      instr[55] = 8'h10;
       
       //lw x14, 100(x0)
-      instr[64] = 8'h03;
-      instr[65] = 8'h27;
-      instr[66] = 8'h40;
-      instr[67] = 8'h06;
+      instr[56] = 8'h03;
+      instr[57] = 8'h27;
+      instr[58] = 8'h40;
+      instr[59] = 8'h06;
       
       //beq x9, x14, 8
-      instr[68] = 8'h63;
-      instr[69] = 8'h84;
-      instr[70] = 8'he4;
-      instr[71] = 8'h00;
+      instr[60] = 8'h63;
+      instr[61] = 8'h84;
+      instr[62] = 8'he4;
+      instr[63] = 8'h00;
       
       //addi x15, x0, 256
-      instr[72] = 8'h93;
-      instr[73] = 8'h07;
-      instr[74] = 8'h00;
-      instr[75] = 8'h10;
+      instr[64] = 8'h93;
+      instr[65] = 8'h07;
+      instr[66] = 8'h00;
+      instr[67] = 8'h10;
       
       //addi x16, x0, 256
-      instr[76] = 8'h13;
-      instr[77] = 8'h08;
-      instr[78] = 8'h00;
-      instr[79] = 8'h10;
+      instr[68] = 8'h13;
+      instr[69] = 8'h08;
+      instr[70] = 8'h00;
+      instr[71] = 8'h10;
     end
   
     always_comb
@@ -685,12 +676,13 @@ module control(
 
 );
 
-parameter LW = 7'b0000011,
+	parameter LW = 7'b0000011,
           SW = 7'b0100011,
           R_type = 7'b0110011,
           BEQ = 7'b1100011,
 	      ADDI = 7'b0010011;
 
+  logic [6:0] opcode;
   
     always_comb
     begin
@@ -704,6 +696,7 @@ parameter LW = 7'b0000011,
             all_ctrl_out.WB_reg_write = 1'b1;
             all_ctrl_out.WB_mem_to_reg = 1'b0;
             if_id_flush = 1'b0;
+          	opcode = R_type;
         end
         
 
@@ -718,6 +711,8 @@ parameter LW = 7'b0000011,
             all_ctrl_out.WB_reg_write = 1'b1;
             all_ctrl_out.WB_mem_to_reg = 1'b1;
             if_id_flush = 1'b0;
+            opcode = LW;
+
         end
         
 
@@ -731,6 +726,8 @@ parameter LW = 7'b0000011,
             all_ctrl_out.WB_reg_write = 1'b0;
             all_ctrl_out.WB_mem_to_reg = 1'bx;
             if_id_flush = 1'b0;
+			opcode = SW;
+          
         end
         
 
@@ -744,6 +741,7 @@ parameter LW = 7'b0000011,
             all_ctrl_out.WB_reg_write = 1'b0;
             all_ctrl_out.WB_mem_to_reg = 1'bx;
             if_id_flush = 1'b0;
+          	opcode = BEQ;
         end
         
       else if((instruc[6:0] == BEQ) && equal_to)
@@ -756,6 +754,7 @@ parameter LW = 7'b0000011,
             all_ctrl_out.WB_reg_write = 1'b0;
             all_ctrl_out.WB_mem_to_reg = 1'bx;
             if_id_flush = 1'b1;
+          	opcode = BEQ;
         end
         
       else if((instruc[6:0] == BEQ) && !equal_to)
@@ -768,6 +767,7 @@ parameter LW = 7'b0000011,
             all_ctrl_out.WB_reg_write = 1'b0;
             all_ctrl_out.WB_mem_to_reg = 1'bx;
             if_id_flush = 1'b0;
+          	opcode = BEQ;          	
         end
 
         else if(instruc[6:0] == ADDI)
@@ -780,6 +780,7 @@ parameter LW = 7'b0000011,
             all_ctrl_out.WB_reg_write = 1'b1;
             all_ctrl_out.WB_mem_to_reg = 1'b0;
             if_id_flush = 1'b0;
+          	opcode = BEQ;
         end
    
 		else
@@ -792,6 +793,7 @@ parameter LW = 7'b0000011,
             all_ctrl_out.WB_reg_write = 1'b0;
             all_ctrl_out.WB_mem_to_reg = 1'b0;
             if_id_flush = 1'b0;
+            opcode = '0;
           end
     end
 
@@ -1340,7 +1342,8 @@ module top_module(
     assign exmem_data_in.reg_read_data2 = fwd_b_out;
     assign exmem_data_in.rd = idex_data_out.rd;
 	assign exmem_data_in.instruc = idex_data_out.instruc;
-  
+
+
     assign exmem_control_in.WB_reg_write = idex_control_out.WB_reg_write;
     assign exmem_control_in.WB_mem_to_reg = idex_control_out.WB_mem_to_reg;
 
@@ -1375,6 +1378,7 @@ module top_module(
     assign memwb_data_in.ALU_result = exmem_data_out.ALU_result;
     assign memwb_data_in.rd = exmem_data_out.rd;
     assign memwb_data_in.instruc = exmem_data_out.instruc;
+	assign memwb_control_in.branch = exmem_control_out.M_branch;
 
     assign memwb_control_in.WB_reg_write = exmem_control_out.WB_reg_write;
     assign memwb_control_in.WB_mem_to_reg = exmem_control_out.WB_mem_to_reg;
