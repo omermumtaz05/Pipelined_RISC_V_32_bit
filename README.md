@@ -8,6 +8,6 @@ This repository contains the code for a pipelined RISC-V 32-bit implementation i
 - Data forwarding and stall insertion for load-use hazards during branch check.
 - Compatibility with  lw, sw, addi, R-type (add, sub, and, or) and beq.
 
-Verification was done using testbenches displaying register values each clock cycle in Icarus Verilog and ModelSim.
+Verification was done using testbenches in Icarus Verilog and ModelSim, displaying register, memory, and control signal values each clock cycle.
 
 ## Block Diagram:
