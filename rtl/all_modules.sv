@@ -33,7 +33,8 @@ typedef struct packed {
     reg [31:0] pc_address;
     reg [31:0] reg_read_data1;
     reg [31:0] reg_read_data2;
-
+	reg [31:0] instruc;
+  
     reg [31:0] imm;
     reg [3:0] funct_inst_bits;
     reg [4:0] rd;
@@ -59,7 +60,8 @@ typedef struct packed {
 } ex_mem_control_t;
 
 typedef struct packed {
-    
+  
+    reg [31:0] instruc;
     reg [31:0] branch_adder_sum;
     reg [31:0] ALU_result;
     reg [31:0] reg_read_data2;
@@ -76,7 +78,8 @@ typedef struct packed {
 } mem_wb_control_t;
 
 typedef struct packed {
-    
+  
+    reg [31:0] instruc;
     reg [31:0] read_data;
     reg [31:0] ALU_result;
     reg [4:0] rd;
@@ -1260,7 +1263,8 @@ module top_module(
   	assign PCSrc = ctrl_unit_out.M_branch && equal_to && !stall;
   
     assign idex_data_in.pc_address = ifid_data_out.pc_address;
-
+  	assign idex_data_in.instruc = ifid_data_out.instruc;
+      
     assign idex_data_in.funct_inst_bits = {ifid_data_out.instruc[30], ifid_data_out.instruc[14:12]};
     assign idex_data_in.rd = ifid_data_out.instruc[11:7];
 
@@ -1335,7 +1339,8 @@ module top_module(
 
     assign exmem_data_in.reg_read_data2 = fwd_b_out;
     assign exmem_data_in.rd = idex_data_out.rd;
-
+	assign exmem_data_in.instruc = idex_data_out.instruc;
+  
     assign exmem_control_in.WB_reg_write = idex_control_out.WB_reg_write;
     assign exmem_control_in.WB_mem_to_reg = idex_control_out.WB_mem_to_reg;
 
@@ -1369,6 +1374,7 @@ module top_module(
 
     assign memwb_data_in.ALU_result = exmem_data_out.ALU_result;
     assign memwb_data_in.rd = exmem_data_out.rd;
+    assign memwb_data_in.instruc = exmem_data_out.instruc;
 
     assign memwb_control_in.WB_reg_write = exmem_control_out.WB_reg_write;
     assign memwb_control_in.WB_mem_to_reg = exmem_control_out.WB_mem_to_reg;
